@@ -2,6 +2,17 @@ import { notFound } from "next/navigation";
 import { getPublicProfile } from "@/lib/data/people";
 import { UserAvatar } from "@/components/user-avatar";
 import { PlaylistPreviewCard } from "@/components/playlists/playlist-preview-card";
+import { PublicLibraryTabs, type LibraryEntry } from "@/components/public-library-tabs";
+import type { ReadingStatus } from "@/app/generated/prisma/enums";
+
+function toEntry(entry: { bookId: string; book: { title: string; authors: string[]; coverUrl: string | null } }): LibraryEntry {
+  return {
+    bookId: entry.bookId,
+    title: entry.book.title,
+    author: entry.book.authors.join(", "),
+    coverUrl: entry.book.coverUrl,
+  };
+}
 
 export default async function PublicProfilePage({
   params,
@@ -12,7 +23,13 @@ export default async function PublicProfilePage({
   const profile = await getPublicProfile(userId);
   if (!profile) notFound();
 
-  const { user, playlists } = profile;
+  const { user, playlists, library } = profile;
+
+  const libraryEntries: Record<ReadingStatus, LibraryEntry[]> = {
+    WANT_TO_READ: library.wantToRead.map(toEntry),
+    CURRENTLY_READING: library.currentlyReading.map(toEntry),
+    FINISHED: library.finished.map(toEntry),
+  };
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -24,6 +41,13 @@ export default async function PublicProfilePage({
             {playlists.length} {playlists.length === 1 ? "playlist" : "playlists"}
           </p>
         </div>
+      </div>
+
+      {user.bio && <p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">{user.bio}</p>}
+
+      <div className="mt-10">
+        <h2 className="font-display text-xl font-semibold text-ink">Library</h2>
+        <PublicLibraryTabs entries={libraryEntries} />
       </div>
 
       <div className="mt-10">

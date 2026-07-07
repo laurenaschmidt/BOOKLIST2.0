@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getUserLibrary } from "@/lib/data/books";
 
 export async function getOtherUsers(currentUserId: string) {
   return prisma.user.findMany({
@@ -17,17 +18,20 @@ export async function getOtherUsers(currentUserId: string) {
 export async function getPublicProfile(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, name: true, image: true },
+    select: { id: true, name: true, image: true, bio: true },
   });
   if (!user) return null;
 
-  const playlists = await prisma.playlist.findMany({
-    where: { userId },
-    include: { book: { select: { id: true, title: true, coverUrl: true } }, songs: { select: { id: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  const [playlists, library] = await Promise.all([
+    prisma.playlist.findMany({
+      where: { userId },
+      include: { book: { select: { id: true, title: true, coverUrl: true } }, songs: { select: { id: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    getUserLibrary(userId),
+  ]);
 
-  return { user, playlists };
+  return { user, playlists, library };
 }
 
 export async function getPublicPlaylist(userId: string, playlistId: string) {
