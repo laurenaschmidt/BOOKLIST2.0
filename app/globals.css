@@ -2,36 +2,36 @@
 @import "tw-animate-css";
 
 :root {
-  --canvas: #faf6ef;
-  --surface: #ffffff;
-  --surface-hover: #f5efe4;
-  --ink: #2b2620;
-  --ink-muted: #85796a;
-  --border: #e9e0d1;
+  --canvas: #fdf1f2;
+  --surface: #fffbfb;
+  --surface-hover: #f8e6e9;
+  --ink: #2e2326;
+  --ink-muted: #8c7478;
+  --border: #f0d9dd;
 
-  --accent: #c1704f;
-  --accent-hover: #ad5f40;
-  --accent-foreground: #fffaf4;
+  --accent: #c6577c;
+  --accent-hover: #b2496c;
+  --accent-foreground: #fff8f9;
 
   --sage: #7c9077;
   --sage-foreground: #f4f8f2;
   --dusty: #6f8fa8;
   --dusty-foreground: #f2f7fa;
 
-  --shadow-color: 30 20% 30%;
+  --shadow-color: 340 20% 30%;
 }
 
 :root[data-theme="dark"] {
-  --canvas: #1c1815;
-  --surface: #262019;
-  --surface-hover: #302921;
-  --ink: #f1e9dc;
-  --ink-muted: #a89a87;
-  --border: #3a3128;
+  --canvas: #201619;
+  --surface: #2a1c20;
+  --surface-hover: #35242a;
+  --ink: #f3e6e9;
+  --ink-muted: #b09499;
+  --border: #40292f;
 
-  --accent: #e08a63;
-  --accent-hover: #e79876;
-  --accent-foreground: #241209;
+  --accent: #e589a8;
+  --accent-hover: #ec9db8;
+  --accent-foreground: #2b0f18;
 
   --sage: #93ab8c;
   --sage-foreground: #16210f;
@@ -41,16 +41,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --canvas: #1c1815;
-    --surface: #262019;
-    --surface-hover: #302921;
-    --ink: #f1e9dc;
-    --ink-muted: #a89a87;
-    --border: #3a3128;
+    --canvas: #201619;
+    --surface: #2a1c20;
+    --surface-hover: #35242a;
+    --ink: #f3e6e9;
+    --ink-muted: #b09499;
+    --border: #40292f;
 
-    --accent: #e08a63;
-    --accent-hover: #e79876;
-    --accent-foreground: #241209;
+    --accent: #e589a8;
+    --accent-hover: #ec9db8;
+    --accent-foreground: #2b0f18;
 
     --sage: #93ab8c;
     --sage-foreground: #16210f;
