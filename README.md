@@ -67,6 +67,8 @@ Track what you're reading and build a mood playlist for every book. Part reading
   shape stored on `Book`.
 - `lib/itunes.ts` — iTunes Search API client for song search (title, artist,
   album art, 30-second preview) when building playlists.
+- `lib/data/people.ts` — read-side data for the People directory and public
+  profile/playlist views.
 - `components/` — UI components; anything interactive is a Client Component
   (`"use client"`), pages themselves stay server-rendered where possible.
 - `prisma/schema.prisma` — data model: `User`, `Book` (cached from Google Books
@@ -76,6 +78,10 @@ Track what you're reading and build a mood playlist for every book. Part reading
 
 ## Notes
 
+- Every account is publicly visible to other logged-in users via the "People"
+  directory (`/people`) — there's no private/public toggle yet. A person's
+  public page (`/people/[userId]`) only shows their playlists (not their bio,
+  stats, or library shelves); playlist pages there are read-only.
 - Book covers are proxied through `next/image`; `next.config.ts` allow-lists
   `books.google.com` as a remote image source.
 - Profile pictures are stored on the local filesystem under `public/uploads/`

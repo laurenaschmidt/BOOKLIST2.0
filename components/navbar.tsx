@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import * as Avatar from "@radix-ui/react-avatar";
 import { motion } from "framer-motion";
 import { LogOut, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/actions/auth";
+import { UserAvatar } from "@/components/user-avatar";
 
 type NavUser = {
   id: string;
@@ -20,6 +20,7 @@ const links = [
   { href: "/library", label: "Library" },
   { href: "/search", label: "Search" },
   { href: "/playlists", label: "Playlists" },
+  { href: "/people", label: "People" },
 ];
 
 export function Navbar({ user }: { user: NavUser | null }) {
@@ -63,12 +64,7 @@ export function Navbar({ user }: { user: NavUser | null }) {
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button className="rounded-full outline-none ring-accent/40 transition focus-visible:ring-2">
-                <Avatar.Root className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-sage text-sage-foreground">
-                  <Avatar.Image src={user.image ?? undefined} alt={user.name ?? "Profile"} className="h-full w-full object-cover" />
-                  <Avatar.Fallback className="text-sm font-semibold">
-                    {(user.name ?? user.email ?? "?").charAt(0).toUpperCase()}
-                  </Avatar.Fallback>
-                </Avatar.Root>
+                <UserAvatar name={user.name ?? user.email ?? "?"} image={user.image ?? null} />
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>

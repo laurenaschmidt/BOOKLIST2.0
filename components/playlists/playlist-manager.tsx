@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, Music2, Pause, Pencil, Play, Plus, Trash2, X } from "lucide-react";
+import { ChevronDown, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   addSongAction,
   deletePlaylistAction,
@@ -11,6 +10,7 @@ import {
   updatePlaylistDetailsAction,
 } from "@/lib/actions/playlists";
 import { ITunesSongSearch } from "@/components/playlists/itunes-song-search";
+import { SongRow } from "@/components/playlists/song-row";
 import { useAudioPreview } from "@/components/playlists/use-audio-preview";
 
 type Song = {
@@ -138,60 +138,16 @@ export function PlaylistManager({
         {songs.length === 0 ? (
           <p className="text-ink-muted">No songs yet. Add the first track below.</p>
         ) : (
-          songs.map((song, index) => {
-            const isPlaying = playingId === song.id;
-            return (
-              <div
-                key={song.id}
-                className="group flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3"
-              >
-                <span className="w-5 shrink-0 text-center text-xs text-ink-muted">{index + 1}</span>
-                {song.previewUrl ? (
-                  <button
-                    type="button"
-                    onClick={() => toggle(song.id, song.previewUrl)}
-                    aria-label={isPlaying ? "Pause preview" : "Play preview"}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-dusty transition-colors hover:text-accent"
-                  >
-                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                  </button>
-                ) : (
-                  <Music2 className="h-4 w-4 shrink-0 text-dusty" />
-                )}
-                {song.albumArtUrl && (
-                  <Image
-                    src={song.albumArtUrl}
-                    alt={song.title}
-                    width={32}
-                    height={32}
-                    className="h-8 w-8 shrink-0 rounded-md object-cover"
-                  />
-                )}
-                <div className="min-w-0 flex-1">
-                  {song.url ? (
-                    <a
-                      href={song.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="truncate text-sm font-medium text-ink hover:text-accent"
-                    >
-                      {song.title}
-                    </a>
-                  ) : (
-                    <p className="truncate text-sm font-medium text-ink">{song.title}</p>
-                  )}
-                  <p className="truncate text-xs text-ink-muted">{song.artist}</p>
-                </div>
-                <button
-                  onClick={() => handleRemoveSong(song.id)}
-                  aria-label={`Remove ${song.title}`}
-                  className="shrink-0 rounded-full p-1.5 text-ink-muted opacity-0 transition-opacity hover:text-accent group-hover:opacity-100"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            );
-          })
+          songs.map((song, index) => (
+            <SongRow
+              key={song.id}
+              song={song}
+              index={index}
+              isPlaying={playingId === song.id}
+              onTogglePreview={() => toggle(song.id, song.previewUrl)}
+              onRemove={() => handleRemoveSong(song.id)}
+            />
+          ))
         )}
       </div>
 
