@@ -79,6 +79,7 @@ export default async function BookDetailPage({
                 title={playlist.title}
                 description={playlist.description}
                 songCount={playlist.songs.length}
+                lyricsType={playlist.lyricsType}
               />
             ))}
           </div>

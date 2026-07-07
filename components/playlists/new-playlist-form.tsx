@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createPlaylistAction } from "@/lib/actions/playlists";
+import { LyricsTypeSelect } from "@/components/playlists/lyrics-type-select";
 
 export function NewPlaylistForm({ bookId }: { bookId: string }) {
   const action = createPlaylistAction.bind(null, bookId);
@@ -35,6 +36,8 @@ export function NewPlaylistForm({ bookId }: { bookId: string }) {
           className="resize-none rounded-xl border border-border bg-canvas px-4 py-2.5 text-sm text-ink outline-none transition-colors focus:border-accent"
         />
       </div>
+
+      <LyricsTypeSelect />
 
       {state?.error && <p className="text-sm text-accent">{state.error}</p>}
 

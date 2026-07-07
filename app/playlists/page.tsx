@@ -36,6 +36,7 @@ export default async function PlaylistsPage() {
               songCount={playlist.songs.length}
               bookTitle={playlist.book.title}
               bookCoverUrl={playlist.book.coverUrl}
+              lyricsType={playlist.lyricsType}
             />
           ))}
         </div>

@@ -18,6 +18,12 @@ enum FriendRequestStatus {
   ACCEPTED
 }
 
+enum LyricsType {
+  INSTRUMENTAL
+  LYRICAL
+  MIXED
+}
+
 model User {
   id           String   @id @default(cuid())
   name         String
@@ -78,15 +84,16 @@ model UserBook {
 }
 
 model Playlist {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   title       String
   description String?
+  lyricsType  LyricsType?
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   bookId      String
-  book        Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  book        Book        @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   songs Song[]
 }

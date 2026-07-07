@@ -5,11 +5,17 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { ITunesTrackResult } from "@/lib/itunes";
+import { LyricsType } from "@/app/generated/prisma/enums";
 
 async function requireUserId() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Not authenticated");
   return session.user.id;
+}
+
+function parseLyricsType(value: FormDataEntryValue | null): LyricsType | null {
+  const values: string[] = Object.values(LyricsType);
+  return typeof value === "string" && values.includes(value) ? (value as LyricsType) : null;
 }
 
 async function nextSongOrder(playlistId: string, userId: string): Promise<number | null> {
@@ -32,13 +38,14 @@ export async function createPlaylistAction(
 
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  const lyricsType = parseLyricsType(formData.get("lyricsType"));
 
   if (!title) {
     return { error: "Give your playlist a title." };
   }
 
   const playlist = await prisma.playlist.create({
-    data: { title, description, userId, bookId },
+    data: { title, description, lyricsType, userId, bookId },
   });
 
   revalidatePath(`/books/${bookId}`);
@@ -49,11 +56,12 @@ export async function updatePlaylistDetailsAction(playlistId: string, formData: 
   const userId = await requireUserId();
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  const lyricsType = parseLyricsType(formData.get("lyricsType"));
   if (!title) return;
 
   const playlist = await prisma.playlist.update({
     where: { id: playlistId, userId },
-    data: { title, description },
+    data: { title, description, lyricsType },
   });
 
   revalidatePath(`/playlists/${playlistId}`);

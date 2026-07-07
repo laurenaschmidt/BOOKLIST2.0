@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getPublicPlaylist } from "@/lib/data/people";
 import { UserAvatar } from "@/components/user-avatar";
 import { ReadOnlySongList } from "@/components/playlists/read-only-song-list";
+import { LyricsTypeBadge } from "@/components/playlists/lyrics-type-badge";
 
 export default async function PublicPlaylistPage({
   params,
@@ -22,6 +23,9 @@ export default async function PublicPlaylistPage({
 
       <h1 className="mt-3 font-display text-3xl font-semibold text-ink">{playlist.title}</h1>
       {playlist.description && <p className="mt-2 text-ink-muted">{playlist.description}</p>}
+      <div className="mt-2">
+        <LyricsTypeBadge lyricsType={playlist.lyricsType} />
+      </div>
       <p className="mt-1 text-sm text-ink-muted">
         for{" "}
         <Link href={`/books/${playlist.book.id}`} className="font-medium text-accent hover:text-accent-hover">

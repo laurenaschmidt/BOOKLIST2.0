@@ -26,6 +26,7 @@ export default async function PlaylistDetailPage({
       bookTitle={playlist.book.title}
       title={playlist.title}
       description={playlist.description}
+      lyricsType={playlist.lyricsType}
       songs={playlist.songs}
     />
   );

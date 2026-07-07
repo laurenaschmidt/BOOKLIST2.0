@@ -10,8 +10,11 @@ import {
   updatePlaylistDetailsAction,
 } from "@/lib/actions/playlists";
 import { ITunesSongSearch } from "@/components/playlists/itunes-song-search";
+import { LyricsTypeBadge } from "@/components/playlists/lyrics-type-badge";
+import { LyricsTypeSelect } from "@/components/playlists/lyrics-type-select";
 import { SongRow } from "@/components/playlists/song-row";
 import { useAudioPreview } from "@/components/playlists/use-audio-preview";
+import type { LyricsType } from "@/app/generated/prisma/enums";
 
 type Song = {
   id: string;
@@ -28,6 +31,7 @@ export function PlaylistManager({
   bookTitle,
   title,
   description,
+  lyricsType,
   songs,
 }: {
   playlistId: string;
@@ -35,6 +39,7 @@ export function PlaylistManager({
   bookTitle: string;
   title: string;
   description: string | null;
+  lyricsType: LyricsType | null;
   songs: Song[];
 }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -90,6 +95,7 @@ export function PlaylistManager({
               placeholder="Describe the mood…"
               className="resize-none rounded-xl border border-border bg-canvas px-4 py-2 text-sm text-ink outline-none focus:border-accent"
             />
+            <LyricsTypeSelect defaultValue={lyricsType} />
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -111,6 +117,9 @@ export function PlaylistManager({
           <div>
             <h1 className="font-display text-3xl font-semibold text-ink">{title}</h1>
             {description && <p className="mt-2 text-ink-muted">{description}</p>}
+            <div className="mt-2">
+              <LyricsTypeBadge lyricsType={lyricsType} />
+            </div>
           </div>
         )}
 

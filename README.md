@@ -74,7 +74,8 @@ Track what you're reading and build a mood playlist for every book. Part reading
 - `components/` — UI components; anything interactive is a Client Component
   (`"use client"`), pages themselves stay server-rendered where possible.
 - `prisma/schema.prisma` — data model: `User`, `Book` (cached from Google Books
-  on first search/add), `UserBook` (a book's shelf status per user), `Playlist`, `Song`.
+  on first search/add), `UserBook` (a book's shelf status per user), `Playlist`
+  (optionally labeled `Instrumental` / `Has Lyrics` / `Mixed` via `lyricsType`), `Song`.
 - `proxy.ts` — Next.js 16's replacement for `middleware.ts`; protects all routes
   except the landing page, login, and signup.
 

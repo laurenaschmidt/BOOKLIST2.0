@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ListMusic } from "lucide-react";
 import { BookCover } from "@/components/book-cover";
+import { LyricsTypeBadge } from "@/components/playlists/lyrics-type-badge";
+import type { LyricsType } from "@/app/generated/prisma/enums";
 
 export function PlaylistPreviewCard({
   href,
@@ -8,12 +10,14 @@ export function PlaylistPreviewCard({
   songCount,
   bookTitle,
   bookCoverUrl,
+  lyricsType,
 }: {
   href: string;
   title: string;
   songCount: number;
   bookTitle: string;
   bookCoverUrl: string | null;
+  lyricsType?: LyricsType | null;
 }) {
   return (
     <Link
@@ -30,6 +34,9 @@ export function PlaylistPreviewCard({
         </div>
         <h3 className="truncate font-display text-lg font-semibold text-ink group-hover:text-accent">{title}</h3>
         <p className="truncate text-xs text-ink-muted">for {bookTitle}</p>
+        <div className="mt-0.5">
+          <LyricsTypeBadge lyricsType={lyricsType ?? null} />
+        </div>
       </div>
     </Link>
   );

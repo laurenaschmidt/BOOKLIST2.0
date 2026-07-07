@@ -79,6 +79,7 @@ export default async function PublicProfilePage({
                 songCount={playlist.songs.length}
                 bookTitle={playlist.book.title}
                 bookCoverUrl={playlist.book.coverUrl}
+                lyricsType={playlist.lyricsType}
               />
             ))}
           </div>
