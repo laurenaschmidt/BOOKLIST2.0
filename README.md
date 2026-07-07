@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BookList
 
-## Getting Started
+Track what you're reading and build a mood playlist for every book. Part reading tracker, part mixtape — inspired by Goodreads, Spotify, and Letterboxd.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Next.js 16** (App Router, Turbopack) + TypeScript
+- **PostgreSQL** + **Prisma 7** (with the `prisma-client` generator and `@prisma/adapter-pg`)
+- **NextAuth.js (Auth.js) v5** — email/password (Credentials provider), route protection via `proxy.ts`
+- **Tailwind CSS v4** (CSS-first theme in `app/globals.css`) + Radix UI primitives + Framer Motion
+- **Google Books API** for book search/metadata
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Install dependencies**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   npm install
+   ```
 
-## Learn More
+2. **Start PostgreSQL.** If you don't already have it running locally:
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   brew install postgresql@16
+   brew services start postgresql@16
+   createdb booklist_dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Configure environment variables.** Copy `.env.example` to `.env` and fill in:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   cp .env.example .env
+   ```
 
-## Deploy on Vercel
+   - `DATABASE_URL` — point it at your local `booklist_dev` database.
+   - `AUTH_SECRET` — generate one with `openssl rand -base64 32`.
+   - `GOOGLE_BOOKS_API_KEY` — optional. Search works without it, but a free key
+     (from the [Google Cloud Console](https://console.cloud.google.com/), enabling the
+     Books API) raises the rate limit well above the shared anonymous quota.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Run migrations and seed demo data**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npx prisma migrate dev
+   npx prisma db seed
+   ```
+
+   This creates a demo account: `demo@booklist.app` / `password123`, with a few
+   books across all three shelves and two sample playlists.
+
+5. **Start the dev server**
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000).
+
+## Project structure
+
+- `app/` — routes (App Router). Most pages are async Server Components that read
+  data directly via `lib/data/*` and `lib/prisma.ts`.
+- `lib/actions/` — Server Actions for mutations (auth, library, playlists, profile).
+- `lib/data/` — read-side data access (library grouping, reading stats, book lookups).
+- `lib/google-books.ts` — Google Books API client, normalizes results into the
+  shape stored on `Book`.
+- `components/` — UI components; anything interactive is a Client Component
+  (`"use client"`), pages themselves stay server-rendered where possible.
+- `prisma/schema.prisma` — data model: `User`, `Book` (cached from Google Books
+  on first search/add), `UserBook` (a book's shelf status per user), `Playlist`, `Song`.
+- `proxy.ts` — Next.js 16's replacement for `middleware.ts`; protects all routes
+  except the landing page, login, and signup.
+
+## Notes
+
+- Book covers are proxied through `next/image`; `next.config.ts` allow-lists
+  `books.google.com` as a remote image source.
+- Profile pictures are stored on the local filesystem under `public/uploads/`
+  for now — swap `app/api/upload/route.ts` for a cloud bucket (S3, Cloudinary,
+  Supabase Storage) before deploying anywhere without a persistent disk.
+- AI-generated playlists (matching a book's mood automatically) are a natural
+  v2 addition — `lib/actions/playlists.ts` is the place to hook that in.
