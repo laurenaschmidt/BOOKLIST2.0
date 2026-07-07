@@ -82,9 +82,10 @@ Track what you're reading and build a mood playlist for every book. Part reading
 
 - Every account is publicly visible to other logged-in users via the "People"
   directory (`/people`) — there's no private/public toggle yet. A person's
-  public page (`/people/[userId]`) shows their bio, library shelves, and
-  playlists (not reading stats); both the library and playlist views there
-  are read-only.
+  public page (`/people/[userId]`) shows their bio, library shelves,
+  playlists (not reading stats), and friends list; both the library and
+  playlist views there are read-only. Your own friends list is also shown
+  on `/profile`.
 - Friending is a mutual request/accept relationship (like Goodreads, not a
   one-way follow) and is purely a social layer — it doesn't change what's
   visible, since profiles are already public to everyone. `/people` shows

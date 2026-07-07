@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getPublicProfile } from "@/lib/data/people";
-import { getFriendshipStatus } from "@/lib/data/friends";
+import { getFriends, getFriendshipStatus } from "@/lib/data/friends";
 import { UserAvatar } from "@/components/user-avatar";
 import { FriendButton } from "@/components/friend-button";
+import { FriendsList } from "@/components/friends-list";
 import { PlaylistPreviewCard } from "@/components/playlists/playlist-preview-card";
 import { PublicLibraryTabs, type LibraryEntry } from "@/components/public-library-tabs";
 import type { ReadingStatus } from "@/app/generated/prisma/enums";
@@ -30,7 +31,10 @@ export default async function PublicProfilePage({
   if (!profile) notFound();
 
   const { user, playlists, library } = profile;
-  const friendshipStatus = await getFriendshipStatus(currentUserId, userId);
+  const [friendshipStatus, friends] = await Promise.all([
+    getFriendshipStatus(currentUserId, userId),
+    getFriends(userId),
+  ]);
 
   const libraryEntries: Record<ReadingStatus, LibraryEntry[]> = {
     WANT_TO_READ: library.wantToRead.map(toEntry),
@@ -79,6 +83,13 @@ export default async function PublicProfilePage({
             ))}
           </div>
         )}
+      </div>
+
+      <div className="mt-10">
+        <h2 className="font-display text-xl font-semibold text-ink">
+          Friends {friends.length > 0 && `(${friends.length})`}
+        </h2>
+        <FriendsList friends={friends} emptyMessage={`${user.name} hasn't added any friends yet.`} />
       </div>
     </div>
   );

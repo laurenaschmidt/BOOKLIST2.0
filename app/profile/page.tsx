@@ -2,8 +2,10 @@ import { BookOpen, BookMarked, CheckCircle2, Library } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { computeReadingStats } from "@/lib/data/stats";
+import { getFriends } from "@/lib/data/friends";
 import { AvatarUploader } from "@/components/profile/avatar-uploader";
 import { BioEditor } from "@/components/profile/bio-editor";
+import { FriendsList } from "@/components/friends-list";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -14,6 +16,7 @@ export default async function ProfilePage() {
     select: { name: true, email: true, image: true, bio: true, createdAt: true },
   });
   const stats = await computeReadingStats(userId);
+  const friends = await getFriends(userId);
 
   const statCards = [
     { label: "Currently reading", value: stats.currentlyReading, icon: BookOpen },
@@ -67,6 +70,16 @@ export default async function ProfilePage() {
           {stats.finishedThisYear === 1 ? "book" : "books"} this year.
         </p>
       )}
+
+      <div className="mt-10">
+        <h2 className="font-display text-xl font-semibold text-ink">
+          Friends {friends.length > 0 && `(${friends.length})`}
+        </h2>
+        <FriendsList
+          friends={friends}
+          emptyMessage="You haven't added any friends yet. Visit the People page to find some."
+        />
+      </div>
     </div>
   );
 }
