@@ -4,11 +4,21 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { ITunesTrackResult } from "@/lib/itunes";
 
 async function requireUserId() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Not authenticated");
   return session.user.id;
+}
+
+async function nextSongOrder(playlistId: string, userId: string): Promise<number | null> {
+  const playlist = await prisma.playlist.findUnique({
+    where: { id: playlistId, userId },
+    select: { id: true, songs: { select: { order: true }, orderBy: { order: "desc" }, take: 1 } },
+  });
+  if (!playlist) return null;
+  return (playlist.songs[0]?.order ?? -1) + 1;
 }
 
 export type PlaylistActionState = { error?: string } | undefined;
@@ -67,16 +77,32 @@ export async function addSongAction(playlistId: string, formData: FormData) {
   const url = (formData.get("url") as string)?.trim() || null;
   if (!title || !artist) return;
 
-  const playlist = await prisma.playlist.findUnique({
-    where: { id: playlistId, userId },
-    select: { id: true, songs: { select: { order: true }, orderBy: { order: "desc" }, take: 1 } },
-  });
-  if (!playlist) return;
-
-  const nextOrder = (playlist.songs[0]?.order ?? -1) + 1;
+  const order = await nextSongOrder(playlistId, userId);
+  if (order === null) return;
 
   await prisma.song.create({
-    data: { playlistId, title, artist, url, order: nextOrder },
+    data: { playlistId, title, artist, url, order },
+  });
+
+  revalidatePath(`/playlists/${playlistId}`);
+}
+
+export async function addITunesSongAction(playlistId: string, track: ITunesTrackResult) {
+  const userId = await requireUserId();
+
+  const order = await nextSongOrder(playlistId, userId);
+  if (order === null) return;
+
+  await prisma.song.create({
+    data: {
+      playlistId,
+      title: track.title,
+      artist: track.artist,
+      url: track.externalUrl,
+      albumArtUrl: track.albumArtUrl,
+      previewUrl: track.previewUrl,
+      order,
+    },
   });
 
   revalidatePath(`/playlists/${playlistId}`);

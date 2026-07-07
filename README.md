@@ -9,6 +9,7 @@ Track what you're reading and build a mood playlist for every book. Part reading
 - **NextAuth.js (Auth.js) v5** — email/password (Credentials provider), route protection via `proxy.ts`
 - **Tailwind CSS v4** (CSS-first theme in `app/globals.css`) + Radix UI primitives + Framer Motion
 - **Google Books API** for book search/metadata
+- **iTunes Search API** for song search when building playlists (free, no auth/key required)
 
 ## Setup
 
@@ -64,6 +65,8 @@ Track what you're reading and build a mood playlist for every book. Part reading
 - `lib/data/` — read-side data access (library grouping, reading stats, book lookups).
 - `lib/google-books.ts` — Google Books API client, normalizes results into the
   shape stored on `Book`.
+- `lib/itunes.ts` — iTunes Search API client for song search (title, artist,
+  album art, 30-second preview) when building playlists.
 - `components/` — UI components; anything interactive is a Client Component
   (`"use client"`), pages themselves stay server-rendered where possible.
 - `prisma/schema.prisma` — data model: `User`, `Book` (cached from Google Books
@@ -80,3 +83,10 @@ Track what you're reading and build a mood playlist for every book. Part reading
   Supabase Storage) before deploying anywhere without a persistent disk.
 - AI-generated playlists (matching a book's mood automatically) are a natural
   v2 addition — `lib/actions/playlists.ts` is the place to hook that in.
+- Song search uses the iTunes Search API rather than Spotify or Apple Music:
+  Spotify requires the Developer app's owner account to have an active
+  Premium subscription just to call its Search endpoint (even for app-level
+  requests), and Apple Music API requires a paid Apple Developer Program
+  membership ($99/year) with no free tier. iTunes Search is free, unauthenticated,
+  and still returns rich metadata (artwork, 30-second preview, a link to open
+  in Apple Music) — worth knowing if revisiting music providers later.

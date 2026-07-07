@@ -72,11 +72,13 @@ model Playlist {
 }
 
 model Song {
-  id         String   @id @default(cuid())
-  playlistId String
-  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
-  title      String
-  artist     String
-  url        String?
-  order      Int      @default(0)
+  id          String   @id @default(cuid())
+  playlistId  String
+  playlist    Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  title       String
+  artist      String
+  url         String?
+  albumArtUrl String?
+  previewUrl  String?
+  order       Int      @default(0)
 }
