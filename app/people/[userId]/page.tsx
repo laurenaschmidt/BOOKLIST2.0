@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { getPublicProfile } from "@/lib/data/people";
+import { getFriendshipStatus } from "@/lib/data/friends";
 import { UserAvatar } from "@/components/user-avatar";
+import { FriendButton } from "@/components/friend-button";
 import { PlaylistPreviewCard } from "@/components/playlists/playlist-preview-card";
 import { PublicLibraryTabs, type LibraryEntry } from "@/components/public-library-tabs";
 import type { ReadingStatus } from "@/app/generated/prisma/enums";
@@ -20,10 +23,14 @@ export default async function PublicProfilePage({
   params: Promise<{ userId: string }>;
 }) {
   const { userId } = await params;
+  const session = await auth();
+  const currentUserId = session!.user.id;
+
   const profile = await getPublicProfile(userId);
   if (!profile) notFound();
 
   const { user, playlists, library } = profile;
+  const friendshipStatus = await getFriendshipStatus(currentUserId, userId);
 
   const libraryEntries: Record<ReadingStatus, LibraryEntry[]> = {
     WANT_TO_READ: library.wantToRead.map(toEntry),
@@ -33,14 +40,17 @@ export default async function PublicProfilePage({
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-10">
-      <div className="flex items-center gap-4">
-        <UserAvatar name={user.name} image={user.image} size="lg" />
-        <div>
-          <h1 className="font-display text-2xl font-semibold text-ink">{user.name}</h1>
-          <p className="text-sm text-ink-muted">
-            {playlists.length} {playlists.length === 1 ? "playlist" : "playlists"}
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <UserAvatar name={user.name} image={user.image} size="lg" />
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-ink">{user.name}</h1>
+            <p className="text-sm text-ink-muted">
+              {playlists.length} {playlists.length === 1 ? "playlist" : "playlists"}
+            </p>
+          </div>
         </div>
+        <FriendButton otherUserId={user.id} initialStatus={friendshipStatus} />
       </div>
 
       {user.bio && <p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">{user.bio}</p>}

@@ -69,6 +69,8 @@ Track what you're reading and build a mood playlist for every book. Part reading
   album art, 30-second preview) when building playlists.
 - `lib/data/people.ts` — read-side data for the People directory and public
   profile/playlist views.
+- `lib/data/friends.ts` / `lib/actions/friends.ts` — mutual friend requests
+  (send, accept, decline/unfriend) backed by the `FriendRequest` model.
 - `components/` — UI components; anything interactive is a Client Component
   (`"use client"`), pages themselves stay server-rendered where possible.
 - `prisma/schema.prisma` — data model: `User`, `Book` (cached from Google Books
@@ -83,6 +85,10 @@ Track what you're reading and build a mood playlist for every book. Part reading
   public page (`/people/[userId]`) shows their bio, library shelves, and
   playlists (not reading stats); both the library and playlist views there
   are read-only.
+- Friending is a mutual request/accept relationship (like Goodreads, not a
+  one-way follow) and is purely a social layer — it doesn't change what's
+  visible, since profiles are already public to everyone. `/people` shows
+  incoming requests, your friends, and everyone else in separate sections.
 - Book covers are proxied through `next/image`; `next.config.ts` allow-lists
   `books.google.com` as a remote image source.
 - Profile pictures are stored on the local filesystem under `public/uploads/`
