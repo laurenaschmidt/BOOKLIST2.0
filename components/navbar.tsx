@@ -30,7 +30,7 @@ export function Navbar({ user }: { user: NavUser | null }) {
     <header className="sticky top-0 z-40 border-b border-border/80 bg-canvas/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link
-          href={user ? "/library" : "/"}
+          href="/"
           className="font-display text-xl font-semibold tracking-tight text-ink"
         >
           BookList
