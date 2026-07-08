@@ -107,5 +107,6 @@ model Song {
   url         String?
   albumArtUrl String?
   previewUrl  String?
+  reason      String?
   order       Int      @default(0)
 }

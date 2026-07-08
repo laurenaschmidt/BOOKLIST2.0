@@ -45,3 +45,6 @@ next-env.d.ts
 # uploaded user content
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# Claude Code local state
+/.claude/

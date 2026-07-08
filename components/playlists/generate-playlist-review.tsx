@@ -1,0 +1,184 @@
+"use client";
+
+import { useEffect, useState, useTransition } from "react";
+import Image from "next/image";
+import { Loader2, Music2, Pause, Play, RefreshCw, Sparkles } from "lucide-react";
+import {
+  createAiPlaylistAction,
+  generateAiPlaylistAction,
+  type GeneratedAiPlaylist,
+} from "@/lib/actions/ai-playlist";
+import { useAudioPreview } from "@/components/playlists/use-audio-preview";
+
+export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; bookTitle: string }) {
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [error, setError] = useState<string | null>(null);
+  const [playlist, setPlaylist] = useState<GeneratedAiPlaylist | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [isPending, startTransition] = useTransition();
+  const { playingId, toggle } = useAudioPreview();
+
+  async function generate() {
+    setStatus("loading");
+    setError(null);
+    const result = await generateAiPlaylistAction(bookId);
+    if (result.ok) {
+      setPlaylist(result.playlist);
+      setTitle(result.playlist.title);
+      setDescription(result.playlist.description);
+      setSelected(new Set(result.playlist.songs.map((_, index) => index)));
+      setStatus("ready");
+    } else {
+      setError(result.error);
+      setStatus("error");
+    }
+  }
+
+  useEffect(() => {
+    generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function toggleSong(index: number) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }
+
+  function handleCreate() {
+    if (!playlist) return;
+    const chosenSongs = playlist.songs.filter((_, index) => selected.has(index));
+    startTransition(async () => {
+      await createAiPlaylistAction(bookId, title, description, chosenSongs);
+    });
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="flex flex-col items-center gap-3 py-20 text-center">
+        <Loader2 className="h-6 w-6 animate-spin text-accent" />
+        <p className="text-ink-muted">Reading between the lines of {bookTitle}…</p>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="flex flex-col items-center gap-4 py-20 text-center">
+        <p className="text-accent">{error}</p>
+        <button
+          type="button"
+          onClick={generate}
+          className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface-hover"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  if (!playlist) return null;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
+        <input
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          className="rounded-xl border border-border bg-canvas px-4 py-2 font-display text-2xl font-semibold text-ink outline-none focus:border-accent"
+        />
+        <textarea
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          rows={2}
+          className="resize-none rounded-xl border border-border bg-canvas px-4 py-2 text-sm text-ink outline-none focus:border-accent"
+        />
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-ink">
+            {selected.size} of {playlist.songs.length} songs selected
+          </p>
+          <button
+            type="button"
+            onClick={generate}
+            className="flex items-center gap-1.5 text-xs font-medium text-ink-muted transition-colors hover:text-ink"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Regenerate
+          </button>
+        </div>
+
+        <div className="mt-3 flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border">
+          {playlist.songs.map((song, index) => {
+            const key = `${song.title}|${song.artist}`;
+            const isPlaying = playingId === key;
+            const isSelected = selected.has(index);
+            return (
+              <label
+                key={key}
+                className={`flex cursor-pointer items-start gap-3 bg-surface px-3 py-2.5 transition-opacity ${
+                  isSelected ? "" : "opacity-50"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleSong(index)}
+                  className="mt-2.5 h-4 w-4 shrink-0 accent-accent"
+                />
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    toggle(key, song.previewUrl);
+                  }}
+                  disabled={!song.previewUrl}
+                  aria-label={isPlaying ? "Pause preview" : "Play preview"}
+                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-hover text-ink-muted transition-colors enabled:hover:text-accent disabled:opacity-30"
+                >
+                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </button>
+                {song.albumArtUrl ? (
+                  <Image
+                    src={song.albumArtUrl}
+                    alt={song.title}
+                    width={36}
+                    height={36}
+                    className="mt-0.5 h-9 w-9 shrink-0 rounded-md object-cover"
+                  />
+                ) : (
+                  <div className="mt-2.5 flex h-4 w-9 shrink-0 items-center justify-center">
+                    <Music2 className="h-4 w-4 text-dusty" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-ink">{song.title}</p>
+                  <p className="truncate text-xs text-ink-muted">{song.artist}</p>
+                  <p className="mt-0.5 text-xs italic text-ink-muted/80">{song.reason}</p>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={handleCreate}
+        disabled={isPending || selected.size === 0 || !title.trim()}
+        className="flex items-center justify-center gap-1.5 self-start rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-60"
+      >
+        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+        Create playlist
+      </button>
+    </div>
+  );
+}

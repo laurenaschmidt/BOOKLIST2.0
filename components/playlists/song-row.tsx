@@ -10,6 +10,7 @@ type Song = {
   url: string | null;
   albumArtUrl: string | null;
   previewUrl: string | null;
+  reason?: string | null;
 };
 
 export function SongRow({
@@ -63,6 +64,7 @@ export function SongRow({
           <p className="truncate text-sm font-medium text-ink">{song.title}</p>
         )}
         <p className="truncate text-xs text-ink-muted">{song.artist}</p>
+        {song.reason && <p className="mt-0.5 line-clamp-2 text-xs italic text-ink-muted/80">{song.reason}</p>}
       </div>
       {onRemove && (
         <button

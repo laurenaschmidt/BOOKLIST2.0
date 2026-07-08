@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { getBookWithUserContext } from "@/lib/data/books";
 import { BookCover } from "@/components/book-cover";
@@ -57,13 +57,22 @@ export default async function BookDetailPage({
       <div className="mt-14">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-2xl font-semibold text-ink">Your playlists</h2>
-          <Link
-            href={`/books/${book.id}/playlists/new`}
-            className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover"
-          >
-            <Plus className="h-4 w-4" />
-            New playlist
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/books/${book.id}/playlists/new`}
+              className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-surface-hover"
+            >
+              <Plus className="h-4 w-4" />
+              Create manually
+            </Link>
+            <Link
+              href={`/books/${book.id}/playlists/generate`}
+              className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover"
+            >
+              <Sparkles className="h-4 w-4" />
+              Generate with AI
+            </Link>
+          </div>
         </div>
 
         {playlists.length === 0 ? (

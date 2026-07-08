@@ -9,6 +9,7 @@ import {
   removeSongAction,
   updatePlaylistDetailsAction,
 } from "@/lib/actions/playlists";
+import { AiSongRecommendations } from "@/components/playlists/ai-song-recommendations";
 import { ITunesSongSearch } from "@/components/playlists/itunes-song-search";
 import { LyricsTypeBadge } from "@/components/playlists/lyrics-type-badge";
 import { LyricsTypeSelect } from "@/components/playlists/lyrics-type-select";
@@ -23,6 +24,7 @@ type Song = {
   url: string | null;
   albumArtUrl: string | null;
   previewUrl: string | null;
+  reason?: string | null;
 };
 
 export function PlaylistManager({
@@ -204,6 +206,8 @@ export function PlaylistManager({
             </button>
           </form>
         )}
+
+        <AiSongRecommendations playlistId={playlistId} />
       </div>
     </div>
   );

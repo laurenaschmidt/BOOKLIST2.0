@@ -10,6 +10,7 @@ type Song = {
   url: string | null;
   albumArtUrl: string | null;
   previewUrl: string | null;
+  reason?: string | null;
 };
 
 export function ReadOnlySongList({ songs }: { songs: Song[] }) {
