@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import { Loader2, Music2, Pause, Play, RefreshCw, Sparkles } from "lucide-react";
 import {
@@ -9,21 +9,56 @@ import {
   type GeneratedAiPlaylist,
 } from "@/lib/actions/ai-playlist";
 import { useAudioPreview } from "@/components/playlists/use-audio-preview";
+import type { LyricsType } from "@/app/generated/prisma/enums";
+
+const LYRICS_OPTIONS: { value: LyricsType; label: string }[] = [
+  { value: "LYRICAL", label: "Has lyrics" },
+  { value: "INSTRUMENTAL", label: "Instrumental" },
+  { value: "MIXED", label: "Mixed" },
+];
+
+function LyricsPreferencePicker({
+  value,
+  onChange,
+}: {
+  value: LyricsType;
+  onChange: (value: LyricsType) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {LYRICS_OPTIONS.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+            value === option.value
+              ? "border-accent bg-accent text-accent-foreground"
+              : "border-border text-ink-muted hover:text-ink"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; bookTitle: string }) {
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"setup" | "loading" | "ready" | "error">("setup");
   const [error, setError] = useState<string | null>(null);
   const [playlist, setPlaylist] = useState<GeneratedAiPlaylist | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [lyricsPreference, setLyricsPreference] = useState<LyricsType>("MIXED");
   const [isPending, startTransition] = useTransition();
   const { playingId, toggle } = useAudioPreview();
 
   async function generate() {
     setStatus("loading");
     setError(null);
-    const result = await generateAiPlaylistAction(bookId);
+    const result = await generateAiPlaylistAction(bookId, lyricsPreference);
     if (result.ok) {
       setPlaylist(result.playlist);
       setTitle(result.playlist.title);
@@ -35,11 +70,6 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
       setStatus("error");
     }
   }
-
-  useEffect(() => {
-    generate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   function toggleSong(index: number) {
     setSelected((prev) => {
@@ -54,8 +84,27 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
     if (!playlist) return;
     const chosenSongs = playlist.songs.filter((_, index) => selected.has(index));
     startTransition(async () => {
-      await createAiPlaylistAction(bookId, title, description, chosenSongs);
+      await createAiPlaylistAction(bookId, title, description, chosenSongs, lyricsPreference);
     });
+  }
+
+  if (status === "setup") {
+    return (
+      <div className="flex flex-col gap-6 py-6">
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium text-ink">What kind of sound?</p>
+          <LyricsPreferencePicker value={lyricsPreference} onChange={setLyricsPreference} />
+        </div>
+        <button
+          type="button"
+          onClick={generate}
+          className="flex items-center justify-center gap-1.5 self-start rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover"
+        >
+          <Sparkles className="h-4 w-4" />
+          Generate playlist
+        </button>
+      </div>
+    );
   }
 
   if (status === "loading") {
@@ -102,18 +151,21 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
       </div>
 
       <div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-medium text-ink">
             {selected.size} of {playlist.songs.length} songs selected
           </p>
-          <button
-            type="button"
-            onClick={generate}
-            className="flex items-center gap-1.5 text-xs font-medium text-ink-muted transition-colors hover:text-ink"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            Regenerate
-          </button>
+          <div className="flex items-center gap-3">
+            <LyricsPreferencePicker value={lyricsPreference} onChange={setLyricsPreference} />
+            <button
+              type="button"
+              onClick={generate}
+              className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-ink-muted transition-colors hover:text-ink"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Regenerate
+            </button>
+          </div>
         </div>
 
         <div className="mt-3 flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border">

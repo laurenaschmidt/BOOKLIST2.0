@@ -1,5 +1,6 @@
 import { GoogleGenAI, ApiError } from "@google/genai";
 import { z } from "zod";
+import type { LyricsType } from "@/app/generated/prisma/enums";
 
 const client = new GoogleGenAI({});
 
@@ -48,6 +49,19 @@ function describeBook(book: BookContext): string {
   return lines.join("\n");
 }
 
+function lyricsInstruction(preference?: LyricsType | null): string {
+  switch (preference) {
+    case "INSTRUMENTAL":
+      return "\n\nOnly include instrumental tracks with no vocals or lyrics.";
+    case "LYRICAL":
+      return "\n\nOnly include songs that have vocals and lyrics — no instrumental tracks.";
+    case "MIXED":
+      return "\n\nInclude a mix of both instrumental tracks and songs with vocals/lyrics.";
+    default:
+      return "";
+  }
+}
+
 const SYSTEM_PROMPT =
   "You are a thoughtful reading companion who builds mood-based music playlists for books. " +
   "You have wide-ranging knowledge of music across genres, eras, and languages, and you are " +
@@ -94,7 +108,10 @@ async function callGemini<T>(schema: z.ZodType<T>, userContent: string): Promise
   return parsed.data;
 }
 
-export async function generateFullPlaylist(book: BookContext): Promise<GeneratedPlaylist> {
+export async function generateFullPlaylist(
+  book: BookContext,
+  lyricsPreference?: LyricsType | null
+): Promise<GeneratedPlaylist> {
   const userContent =
     `Create a mood playlist for this book:\n\n${describeBook(book)}\n\n` +
     "Analyze the book's themes, setting, mood, character dynamics, and emotional tone. " +
@@ -104,7 +121,8 @@ export async function generateFullPlaylist(book: BookContext): Promise<Generated
     "- Between 10 and 15 real, existing songs, each with the song title, the artist, and a " +
     "1-2 sentence explanation of why it fits the book's mood, themes, or atmosphere\n\n" +
     "Choose songs across a range of genres and eras. Favor atmosphere and emotional resonance " +
-    "over literal title matches.";
+    "over literal title matches." +
+    lyricsInstruction(lyricsPreference);
 
   return callGemini(FullPlaylistSchema, userContent);
 }
@@ -116,6 +134,7 @@ export async function generateSongSuggestions(
     exclude?: string[];
     playlistTitle?: string;
     playlistDescription?: string;
+    lyricsPreference?: LyricsType | null;
   } = {}
 ): Promise<SongSuggestion[]> {
   const count = options.count ?? 6;
@@ -137,7 +156,8 @@ export async function generateSongSuggestions(
     playlistContext +
     exclusions +
     "\n\nFor each song, give the song title, the artist, and a 1-2 sentence explanation of why it fits " +
-    "the book's mood, themes, or atmosphere. Choose real, existing songs across a range of genres and eras.";
+    "the book's mood, themes, or atmosphere. Choose real, existing songs across a range of genres and eras." +
+    lyricsInstruction(options.lyricsPreference);
 
   const result = await callGemini(SongSuggestionsSchema, userContent);
   return result.songs;

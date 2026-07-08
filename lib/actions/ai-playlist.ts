@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateFullPlaylist, generateSongSuggestions, GeminiPlaylistError } from "@/lib/gemini";
 import { enrichSuggestions, type EnrichedSongSuggestion } from "@/lib/ai-playlist";
+import type { LyricsType } from "@/app/generated/prisma/enums";
 
 async function requireUserId() {
   const session = await auth();
@@ -27,14 +28,17 @@ export type GenerateAiPlaylistResult =
   | { ok: true; playlist: GeneratedAiPlaylist }
   | { ok: false; error: string };
 
-export async function generateAiPlaylistAction(bookId: string): Promise<GenerateAiPlaylistResult> {
+export async function generateAiPlaylistAction(
+  bookId: string,
+  lyricsPreference: LyricsType
+): Promise<GenerateAiPlaylistResult> {
   await requireUserId();
 
   const book = await prisma.book.findUnique({ where: { id: bookId } });
   if (!book) return { ok: false, error: "Couldn't find that book." };
 
   try {
-    const generated = await generateFullPlaylist(bookContext(book));
+    const generated = await generateFullPlaylist(bookContext(book), lyricsPreference);
     const songs = await enrichSuggestions(generated.songs);
     return { ok: true, playlist: { title: generated.title, description: generated.description, songs } };
   } catch (error) {
@@ -47,7 +51,8 @@ export async function createAiPlaylistAction(
   bookId: string,
   title: string,
   description: string,
-  songs: EnrichedSongSuggestion[]
+  songs: EnrichedSongSuggestion[],
+  lyricsType: LyricsType
 ) {
   const userId = await requireUserId();
 
@@ -58,6 +63,7 @@ export async function createAiPlaylistAction(
     data: {
       title: trimmedTitle,
       description: description.trim() || null,
+      lyricsType,
       userId,
       bookId,
       songs: {
@@ -98,6 +104,7 @@ export async function generateSongSuggestionsAction(playlistId: string): Promise
       exclude: playlist.songs.map((s) => `${s.title} by ${s.artist}`),
       playlistTitle: playlist.title,
       playlistDescription: playlist.description ?? undefined,
+      lyricsPreference: playlist.lyricsType,
     });
     const fresh = suggestions.filter((s) => !existingTitles.has(s.title.toLowerCase()));
     const enriched = await enrichSuggestions(fresh);

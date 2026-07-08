@@ -110,6 +110,12 @@ Track what you're reading and build a mood playlist for every book. Part reading
 - Profile pictures are stored on the local filesystem under `public/uploads/`
   for now — swap `app/api/upload/route.ts` for a cloud bucket (S3, Cloudinary,
   Supabase Storage) before deploying anywhere without a persistent disk.
+- "Generate with AI" starts with a required choice of sound — Has lyrics /
+  Instrumental / Mixed — which both steers Gemini's song picks and is saved
+  as the resulting playlist's `lyricsType`. The choice stays visible next to
+  "Regenerate" so it can be changed without starting over. The embedded "AI
+  song recommendations" panel doesn't repeat this control — it reads the
+  current playlist's `lyricsType` (if set) and matches it automatically.
 - AI playlist generation ("Generate with AI" on a book page, and the "AI song
   recommendations" panel inside the manual playlist editor) never auto-saves
   anything. Both flows show the AI's suggestions — title, description, and
