@@ -84,10 +84,14 @@ Track what you're reading and build a mood playlist for every book. Part reading
   profile/playlist views.
 - `lib/data/follows.ts` / `lib/actions/follows.ts` — one-way following (follow/
   unfollow, no request or approval step) backed by the `Follow` model.
+- `lib/data/notifications.ts` — read-side queries for the notifications page
+  and navbar unread badge, plus `notifyFollowersOfNewPlaylist`, called from
+  both the manual and AI playlist-creation actions.
 - `components/` — UI components; anything interactive is a Client Component
   (`"use client"`), pages themselves stay server-rendered where possible.
 - `prisma/schema.prisma` — data model: `User`, `Follow` (one-way, no approval
-  step), `Book` (cached from Google Books on first search/add), `UserBook`
+  step), `Notification` (`NEW_FOLLOWER` / `NEW_PLAYLIST`, read/unread),
+  `Book` (cached from Google Books on first search/add), `UserBook`
   (a book's shelf status per user), `Playlist` (optionally labeled
   `Instrumental` / `Has Lyrics` / `Mixed` via `lyricsType`), `Song` (optional
   `reason` field, set when a song came from an AI suggestion).
@@ -111,6 +115,16 @@ Track what you're reading and build a mood playlist for every book. Part reading
   system (`FriendRequest` model); the migration converts any existing
   accepted friendship into a mutual follow and any pending request into a
   one-way follow from whoever sent it.
+- `/notifications` (bell icon in the navbar, with an unread-count badge)
+  shows two kinds of updates: someone new following you, and a new playlist
+  (manual or AI-generated) from someone you follow. Notifications are
+  written at the moment they happen (in `followUserAction` and both
+  playlist-creation actions) rather than computed from an activity feed, so
+  they support read/unread state and don't disappear if the underlying
+  playlist is later edited. Visiting the page marks everything as read, but
+  the page you're looking at still shows what was unread during that visit.
+  Library status changes (want-to-read/finished) intentionally do not
+  notify — too frequent/low-signal compared to playlists.
 - Book covers are proxied through `next/image`; `next.config.ts` allow-lists
   `books.google.com` as a remote image source.
 - Profile pictures are stored on the local filesystem under `public/uploads/`

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { ITunesTrackResult } from "@/lib/itunes";
+import { notifyFollowersOfNewPlaylist } from "@/lib/data/notifications";
 import { LyricsType } from "@/app/generated/prisma/enums";
 
 async function requireUserId() {
@@ -47,6 +48,7 @@ export async function createPlaylistAction(
   const playlist = await prisma.playlist.create({
     data: { title, description, lyricsType, userId, bookId },
   });
+  await notifyFollowersOfNewPlaylist(userId, playlist.id);
 
   revalidatePath(`/books/${bookId}`);
   redirect(`/playlists/${playlist.id}`);

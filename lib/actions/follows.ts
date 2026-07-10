@@ -14,15 +14,21 @@ export async function followUserAction(otherUserId: string) {
   const userId = await requireUserId();
   if (userId === otherUserId) return;
 
-  await prisma.follow.upsert({
+  const existing = await prisma.follow.findUnique({
     where: { followerId_followingId: { followerId: userId, followingId: otherUserId } },
-    update: {},
-    create: { followerId: userId, followingId: otherUserId },
   });
+
+  if (!existing) {
+    await prisma.follow.create({ data: { followerId: userId, followingId: otherUserId } });
+    await prisma.notification.create({
+      data: { recipientId: otherUserId, actorId: userId, type: "NEW_FOLLOWER" },
+    });
+  }
 
   revalidatePath("/people");
   revalidatePath(`/people/${otherUserId}`);
   revalidatePath("/profile");
+  revalidatePath("/notifications");
 }
 
 export async function unfollowUserAction(otherUserId: string) {

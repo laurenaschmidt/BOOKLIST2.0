@@ -19,6 +19,11 @@ enum LyricsType {
   MIXED
 }
 
+enum NotificationType {
+  NEW_FOLLOWER
+  NEW_PLAYLIST
+}
+
 model User {
   id           String   @id @default(cuid())
   name         String
@@ -33,6 +38,9 @@ model User {
 
   following Follow[] @relation("Following")
   followers Follow[] @relation("Followers")
+
+  receivedNotifications Notification[] @relation("ReceivedNotifications")
+  sentNotifications     Notification[] @relation("SentNotifications")
 }
 
 model Follow {
@@ -44,6 +52,21 @@ model Follow {
   createdAt   DateTime @default(now())
 
   @@unique([followerId, followingId])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  recipientId String
+  recipient   User             @relation("ReceivedNotifications", fields: [recipientId], references: [id], onDelete: Cascade)
+  actorId     String
+  actor       User             @relation("SentNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  playlistId  String?
+  playlist    Playlist?        @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  read        Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  @@index([recipientId, createdAt])
 }
 
 model Book {
@@ -89,7 +112,8 @@ model Playlist {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  songs Song[]
+  songs         Song[]
+  notifications Notification[]
 }
 
 model Song {

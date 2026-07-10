@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion } from "framer-motion";
-import { LogOut, User as UserIcon } from "lucide-react";
+import { Bell, LogOut, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/actions/auth";
 import { UserAvatar } from "@/components/user-avatar";
@@ -23,7 +23,7 @@ const links = [
   { href: "/people", label: "People" },
 ];
 
-export function Navbar({ user }: { user: NavUser | null }) {
+export function Navbar({ user, unreadNotificationCount = 0 }: { user: NavUser | null; unreadNotificationCount?: number }) {
   const pathname = usePathname();
 
   return (
@@ -64,7 +64,24 @@ export function Navbar({ user }: { user: NavUser | null }) {
         )}
 
         {user ? (
-          <DropdownMenu.Root>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/notifications"
+              aria-label="Notifications"
+              className="relative rounded-full p-2 text-ink-muted transition-colors hover:text-ink"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadNotificationCount > 0 && (
+                <motion.span
+                  animate={{ scale: [1, 1.15, 1] }}
+                  transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-foreground"
+                >
+                  {unreadNotificationCount > 9 ? "9+" : unreadNotificationCount}
+                </motion.span>
+              )}
+            </Link>
+            <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button className="rounded-full outline-none ring-accent/40 transition focus-visible:ring-2">
                 <UserAvatar name={user.name ?? user.email ?? "?"} image={user.image ?? null} />
@@ -102,7 +119,8 @@ export function Navbar({ user }: { user: NavUser | null }) {
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
-          </DropdownMenu.Root>
+            </DropdownMenu.Root>
+          </div>
         ) : (
           <div className="flex items-center gap-2">
             <Link

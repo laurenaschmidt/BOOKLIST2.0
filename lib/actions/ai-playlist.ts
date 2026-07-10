@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateFullPlaylist, generateSongSuggestions, GeminiPlaylistError } from "@/lib/gemini";
 import { enrichSuggestions, type EnrichedSongSuggestion } from "@/lib/ai-playlist";
+import { notifyFollowersOfNewPlaylist } from "@/lib/data/notifications";
 import type { LyricsType } from "@/app/generated/prisma/enums";
 
 async function requireUserId() {
@@ -79,6 +80,7 @@ export async function createAiPlaylistAction(
       },
     },
   });
+  await notifyFollowersOfNewPlaylist(userId, playlist.id);
 
   revalidatePath(`/books/${bookId}`);
   redirect(`/playlists/${playlist.id}`);
