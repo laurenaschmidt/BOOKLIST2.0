@@ -39,6 +39,11 @@ type BookContext = {
   genres: string[];
 };
 
+export type UserTaste = {
+  favoriteArtists: string[];
+  previousSongs: { title: string; artist: string }[];
+};
+
 function describeBook(book: BookContext): string {
   const lines = [
     `Title: ${book.title}`,
@@ -47,6 +52,28 @@ function describeBook(book: BookContext): string {
     book.description ? `Description: ${book.description}` : null,
   ].filter(Boolean);
   return lines.join("\n");
+}
+
+function tasteInstruction(taste?: UserTaste): string {
+  if (!taste) return "";
+
+  const parts: string[] = [];
+  if (taste.favoriteArtists.length > 0) {
+    parts.push(`Their favorite artists include: ${taste.favoriteArtists.join(", ")}.`);
+  }
+  if (taste.previousSongs.length > 0) {
+    const list = taste.previousSongs.map((s) => `"${s.title}" by ${s.artist}`).join(", ");
+    parts.push(`They have previously added these songs to other playlists: ${list}.`);
+  }
+  if (parts.length === 0) return "";
+
+  return (
+    "\n\nFor a personal touch, here is some context on this listener's taste: " +
+    parts.join(" ") +
+    " Let this inform your choices only where it naturally fits — lean toward similar artists, genres, " +
+    "or styles when appropriate. The book's mood and themes always come first: do not force in a " +
+    "favorite artist or repeat a previous song if it does not genuinely fit."
+  );
 }
 
 function lyricsInstruction(preference?: LyricsType | null): string {
@@ -110,7 +137,8 @@ async function callGemini<T>(schema: z.ZodType<T>, userContent: string): Promise
 
 export async function generateFullPlaylist(
   book: BookContext,
-  lyricsPreference?: LyricsType | null
+  lyricsPreference?: LyricsType | null,
+  taste?: UserTaste
 ): Promise<GeneratedPlaylist> {
   const userContent =
     `Create a mood playlist for this book:\n\n${describeBook(book)}\n\n` +
@@ -122,7 +150,8 @@ export async function generateFullPlaylist(
     "1-2 sentence explanation of why it fits the book's mood, themes, or atmosphere\n\n" +
     "Choose songs across a range of genres and eras. Favor atmosphere and emotional resonance " +
     "over literal title matches." +
-    lyricsInstruction(lyricsPreference);
+    lyricsInstruction(lyricsPreference) +
+    tasteInstruction(taste);
 
   return callGemini(FullPlaylistSchema, userContent);
 }
@@ -135,6 +164,7 @@ export async function generateSongSuggestions(
     playlistTitle?: string;
     playlistDescription?: string;
     lyricsPreference?: LyricsType | null;
+    taste?: UserTaste;
   } = {}
 ): Promise<SongSuggestion[]> {
   const count = options.count ?? 6;
@@ -157,7 +187,8 @@ export async function generateSongSuggestions(
     exclusions +
     "\n\nFor each song, give the song title, the artist, and a 1-2 sentence explanation of why it fits " +
     "the book's mood, themes, or atmosphere. Choose real, existing songs across a range of genres and eras." +
-    lyricsInstruction(options.lyricsPreference);
+    lyricsInstruction(options.lyricsPreference) +
+    tasteInstruction(options.taste);
 
   const result = await callGemini(SongSuggestionsSchema, userContent);
   return result.songs;

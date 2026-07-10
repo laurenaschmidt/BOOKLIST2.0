@@ -80,6 +80,11 @@ Track what you're reading and build a mood playlist for every book. Part reading
 - `lib/ai-playlist.ts` — cross-references each AI-suggested song against the
   iTunes Search client to attach real album art/preview/link before it reaches
   the UI. `lib/actions/ai-playlist.ts` has the corresponding Server Actions.
+- `lib/data/taste.ts` — `getUserTaste` gathers a listener's favorite artists
+  and up to 30 distinct songs from their own past playlists, passed into
+  both `lib/gemini.ts` generation functions as a soft, secondary signal (the
+  prompt explicitly tells the model the book's mood comes first and not to
+  force in a favorite artist or repeat a past song where it does not fit).
 - `lib/data/people.ts` — read-side data for the People directory and public
   profile/playlist views.
 - `lib/data/follows.ts` / `lib/actions/follows.ts` — one-way following (follow/

@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { generateFullPlaylist, generateSongSuggestions, GeminiPlaylistError } from "@/lib/gemini";
 import { enrichSuggestions, type EnrichedSongSuggestion } from "@/lib/ai-playlist";
 import { notifyFollowersOfNewPlaylist } from "@/lib/data/notifications";
+import { getUserTaste } from "@/lib/data/taste";
 import type { LyricsType } from "@/app/generated/prisma/enums";
 
 async function requireUserId() {
@@ -33,13 +34,14 @@ export async function generateAiPlaylistAction(
   bookId: string,
   lyricsPreference: LyricsType
 ): Promise<GenerateAiPlaylistResult> {
-  await requireUserId();
+  const userId = await requireUserId();
 
   const book = await prisma.book.findUnique({ where: { id: bookId } });
   if (!book) return { ok: false, error: "Couldn't find that book." };
 
   try {
-    const generated = await generateFullPlaylist(bookContext(book), lyricsPreference);
+    const taste = await getUserTaste(userId);
+    const generated = await generateFullPlaylist(bookContext(book), lyricsPreference, taste);
     const songs = await enrichSuggestions(generated.songs);
     return { ok: true, playlist: { title: generated.title, description: generated.description, songs } };
   } catch (error) {
@@ -101,12 +103,14 @@ export async function generateSongSuggestionsAction(playlistId: string): Promise
 
   try {
     const existingTitles = new Set(playlist.songs.map((s) => s.title.toLowerCase()));
+    const taste = await getUserTaste(userId);
     const suggestions = await generateSongSuggestions(bookContext(playlist.book), {
       count: 6,
       exclude: playlist.songs.map((s) => `${s.title} by ${s.artist}`),
       playlistTitle: playlist.title,
       playlistDescription: playlist.description ?? undefined,
       lyricsPreference: playlist.lyricsType,
+      taste,
     });
     const fresh = suggestions.filter((s) => !existingTitles.has(s.title.toLowerCase()));
     const enriched = await enrichSuggestions(fresh);
