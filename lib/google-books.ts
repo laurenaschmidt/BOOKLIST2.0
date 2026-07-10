@@ -52,25 +52,30 @@ export class GoogleBooksApiError extends Error {
   }
 }
 
-const MAX_ATTEMPTS = 3;
+const MAX_ATTEMPTS = 8;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Google's Books API occasionally returns transient 5xx errors even on a
-// healthy connection; retry those a couple of times before giving up. A 429
-// (quota) is not transient in the same way, so it fails immediately.
+// Google's Books API returns transient 503s at a surprisingly high, fluctuating
+// rate (measured 35-80% per-request failure in testing) even on a healthy
+// connection and a valid key, so retries are essential here. Each attempt
+// passes its own AbortController signal: Next.js memoizes repeated `fetch`
+// calls with identical url+options within a single server render, so without
+// a distinct signal every "retry" would just replay the same failed response
+// instead of hitting the network again. A 429 (quota) is a different,
+// non-transient failure, so it fails immediately instead of retrying.
 async function fetchWithRetry(url: string): Promise<Response> {
   let lastResponse: Response | undefined;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, { cache: "no-store", signal: new AbortController().signal });
     if (res.ok || res.status === 429 || attempt === MAX_ATTEMPTS) {
       return res;
     }
     lastResponse = res;
-    await sleep(300 * attempt);
+    await sleep(150);
   }
 
   return lastResponse!;
