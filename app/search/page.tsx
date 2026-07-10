@@ -5,6 +5,7 @@ import { searchBooks, GoogleBooksApiError } from "@/lib/google-books";
 import { getLibraryEntryIdsForUser, findOrCreateBook } from "@/lib/data/books";
 import { BookCover } from "@/components/book-cover";
 import { AddToLibraryMenu } from "@/components/add-to-library-menu";
+import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
 
 export default async function SearchPage({
   searchParams,
@@ -60,13 +61,13 @@ export default async function SearchPage({
         <p className="mt-10 text-ink-muted">No books found for &ldquo;{q}&rdquo;.</p>
       )}
 
-      <div className="mt-8 grid grid-cols-2 gap-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-500 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <StaggerGrid className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {results.map((book) => {
           const localBookId = bookIdByGoogleId.get(book.googleBooksId)!;
           const initialStatus = libraryStatusByBookId.get(localBookId);
 
           return (
-            <div key={book.googleBooksId} className="flex flex-col gap-3">
+            <StaggerItem key={book.googleBooksId} className="flex flex-col gap-3">
               <Link href={`/books/${localBookId}`}>
                 <BookCover src={book.coverUrl} title={book.title} />
               </Link>
@@ -75,10 +76,10 @@ export default async function SearchPage({
                 <p className="line-clamp-1 text-xs text-ink-muted">{book.authors.join(", ")}</p>
               </div>
               <AddToLibraryMenu googleBooksId={book.googleBooksId} initialStatus={initialStatus} />
-            </div>
+            </StaggerItem>
           );
         })}
-      </div>
+      </StaggerGrid>
     </div>
   );
 }

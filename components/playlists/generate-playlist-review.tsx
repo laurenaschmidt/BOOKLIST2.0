@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Loader2, Music2, Pause, Play, RefreshCw, Sparkles } from "lucide-react";
 import {
   createAiPlaylistAction,
@@ -9,6 +10,7 @@ import {
   type GeneratedAiPlaylist,
 } from "@/lib/actions/ai-playlist";
 import { useAudioPreview } from "@/components/playlists/use-audio-preview";
+import { staggerContainerVariants, staggerItemVariants } from "@/components/motion/stagger-grid";
 import type { LyricsType } from "@/app/generated/prisma/enums";
 
 const LYRICS_OPTIONS: { value: LyricsType; label: string }[] = [
@@ -31,7 +33,7 @@ function LyricsPreferencePicker({
           key={option.value}
           type="button"
           onClick={() => onChange(option.value)}
-          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition active:scale-95 ${
             value === option.value
               ? "border-accent bg-accent text-accent-foreground"
               : "border-border text-ink-muted hover:text-ink"
@@ -98,7 +100,7 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
         <button
           type="button"
           onClick={generate}
-          className="flex items-center justify-center gap-1.5 self-start rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover"
+          className="flex items-center justify-center gap-1.5 self-start rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-hover active:scale-95"
         >
           <Sparkles className="h-4 w-4" />
           Generate playlist
@@ -109,10 +111,19 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
 
   if (status === "loading") {
     return (
-      <div className="flex flex-col items-center gap-3 py-20 text-center">
-        <Loader2 className="h-6 w-6 animate-spin text-accent" />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center gap-4 py-20 text-center"
+      >
+        <motion.span
+          animate={{ scale: [1, 1.25, 1], rotate: [0, 20, -20, 0] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Sparkles className="h-7 w-7 text-accent" />
+        </motion.span>
         <p className="text-ink-muted">Reading between the lines of {bookTitle}…</p>
-      </div>
+      </motion.div>
     );
   }
 
@@ -123,7 +134,7 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
         <button
           type="button"
           onClick={generate}
-          className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface-hover"
+          className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-ink transition hover:bg-surface-hover active:scale-95"
         >
           <RefreshCw className="h-4 w-4" />
           Try again
@@ -160,7 +171,7 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
             <button
               type="button"
               onClick={generate}
-              className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-ink-muted transition-colors hover:text-ink"
+              className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-ink-muted transition hover:text-ink active:scale-95"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Regenerate
@@ -168,14 +179,21 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
           </div>
         </div>
 
-        <div className="mt-3 flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border">
+        <motion.div
+          key={playlist.songs.map((s) => s.title).join("|")}
+          variants={staggerContainerVariants}
+          initial="hidden"
+          animate="show"
+          className="mt-3 flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border"
+        >
           {playlist.songs.map((song, index) => {
             const key = `${song.title}|${song.artist}`;
             const isPlaying = playingId === key;
             const isSelected = selected.has(index);
             return (
-              <label
+              <motion.label
                 key={key}
+                variants={staggerItemVariants}
                 className={`flex cursor-pointer items-start gap-3 bg-surface px-3 py-2.5 transition-opacity ${
                   isSelected ? "" : "opacity-50"
                 }`}
@@ -216,17 +234,17 @@ export function GeneratePlaylistReview({ bookId, bookTitle }: { bookId: string; 
                   <p className="truncate text-xs text-ink-muted">{song.artist}</p>
                   <p className="mt-0.5 text-xs italic text-ink-muted/80">{song.reason}</p>
                 </div>
-              </label>
+              </motion.label>
             );
           })}
-        </div>
+        </motion.div>
       </div>
 
       <button
         type="button"
         onClick={handleCreate}
         disabled={isPending || selected.size === 0 || !title.trim()}
-        className="flex items-center justify-center gap-1.5 self-start rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-60"
+        className="flex items-center justify-center gap-1.5 self-start rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-hover active:scale-95 disabled:opacity-60"
       >
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
         Create playlist

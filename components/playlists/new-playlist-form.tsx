@@ -44,7 +44,7 @@ export function NewPlaylistForm({ bookId }: { bookId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 self-start rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-60"
+        className="mt-2 self-start rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-hover active:scale-95 disabled:opacity-60"
       >
         {pending ? "Creating…" : "Create playlist"}
       </button>

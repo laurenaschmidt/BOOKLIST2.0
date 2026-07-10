@@ -7,6 +7,7 @@ import { FriendButton } from "@/components/friend-button";
 import { FriendsList } from "@/components/friends-list";
 import { PlaylistPreviewCard } from "@/components/playlists/playlist-preview-card";
 import { PublicLibraryTabs, type LibraryEntry } from "@/components/public-library-tabs";
+import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
 import type { ReadingStatus } from "@/app/generated/prisma/enums";
 
 function toEntry(entry: { bookId: string; book: { title: string; authors: string[]; coverUrl: string | null } }): LibraryEntry {
@@ -70,19 +71,20 @@ export default async function PublicProfilePage({
         {playlists.length === 0 ? (
           <p className="mt-4 text-ink-muted">{user.name} hasn&apos;t made any playlists yet.</p>
         ) : (
-          <div className="mt-6 grid grid-cols-1 gap-5 animate-in fade-in-0 slide-in-from-bottom-2 duration-500 sm:grid-cols-2 lg:grid-cols-3">
+          <StaggerGrid className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {playlists.map((playlist) => (
-              <PlaylistPreviewCard
-                key={playlist.id}
-                href={`/people/${user.id}/playlists/${playlist.id}`}
-                title={playlist.title}
-                songCount={playlist.songs.length}
-                bookTitle={playlist.book.title}
-                bookCoverUrl={playlist.book.coverUrl}
-                lyricsType={playlist.lyricsType}
-              />
+              <StaggerItem key={playlist.id}>
+                <PlaylistPreviewCard
+                  href={`/people/${user.id}/playlists/${playlist.id}`}
+                  title={playlist.title}
+                  songCount={playlist.songs.length}
+                  bookTitle={playlist.book.title}
+                  bookCoverUrl={playlist.book.coverUrl}
+                  lyricsType={playlist.lyricsType}
+                />
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGrid>
         )}
       </div>
 

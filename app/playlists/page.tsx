@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PlaylistPreviewCard } from "@/components/playlists/playlist-preview-card";
+import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
 
 export default async function PlaylistsPage() {
   const session = await auth();
@@ -27,19 +28,20 @@ export default async function PlaylistsPage() {
           to start one.
         </p>
       ) : (
-        <div className="mt-8 grid grid-cols-1 gap-5 animate-in fade-in-0 slide-in-from-bottom-2 duration-500 sm:grid-cols-2 lg:grid-cols-3">
+        <StaggerGrid className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {playlists.map((playlist) => (
-            <PlaylistPreviewCard
-              key={playlist.id}
-              href={`/playlists/${playlist.id}`}
-              title={playlist.title}
-              songCount={playlist.songs.length}
-              bookTitle={playlist.book.title}
-              bookCoverUrl={playlist.book.coverUrl}
-              lyricsType={playlist.lyricsType}
-            />
+            <StaggerItem key={playlist.id}>
+              <PlaylistPreviewCard
+                href={`/playlists/${playlist.id}`}
+                title={playlist.title}
+                songCount={playlist.songs.length}
+                bookTitle={playlist.book.title}
+                bookCoverUrl={playlist.book.coverUrl}
+                lyricsType={playlist.lyricsType}
+              />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGrid>
       )}
     </div>
   );

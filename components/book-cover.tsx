@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +15,10 @@ export function BookCover({
   className?: string;
 }) {
   return (
-    <div
+    <motion.div
+      whileHover={{ scale: 1.045, rotate: -1.5 }}
+      whileTap={{ scale: 0.97, rotate: 0 }}
+      transition={{ type: "spring", stiffness: 350, damping: 20 }}
       className={cn(
         "relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-surface-hover shadow-sm",
         className
@@ -31,6 +37,6 @@ export function BookCover({
           <BookOpen className="h-8 w-8" strokeWidth={1.5} />
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

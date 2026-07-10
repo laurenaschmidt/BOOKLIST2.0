@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { Loader2, Pause, Play, Plus, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { Pause, Play, Plus, Sparkles } from "lucide-react";
 import { addAiSongAction, generateSongSuggestionsAction } from "@/lib/actions/ai-playlist";
 import { useAudioPreview } from "@/components/playlists/use-audio-preview";
+import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
 import type { EnrichedSongSuggestion } from "@/lib/ai-playlist";
 
 function songKey(song: EnrichedSongSuggestion) {
@@ -50,9 +52,15 @@ export function AiSongRecommendations({ playlistId }: { playlistId: string }) {
           type="button"
           onClick={handleGetSuggestions}
           disabled={isLoading}
-          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-surface-hover disabled:opacity-60"
+          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface-hover active:scale-95 disabled:opacity-60"
         >
-          {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+          <motion.span
+            className="inline-flex"
+            animate={isLoading ? { scale: [1, 1.3, 1], rotate: [0, 20, -20, 0] } : { scale: 1, rotate: 0 }}
+            transition={isLoading ? { duration: 1.1, repeat: Infinity, ease: "easeInOut" } : {}}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+          </motion.span>
           {suggestions ? "Get new ideas" : "Get suggestions"}
         </button>
       </div>
@@ -64,13 +72,13 @@ export function AiSongRecommendations({ playlistId }: { playlistId: string }) {
       )}
 
       {suggestions && suggestions.length > 0 && (
-        <div className="flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border">
+        <StaggerGrid className="flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border">
           {suggestions.map((song) => {
             const key = songKey(song);
             const isPlaying = playingId === key;
             const isAdded = addedKeys.has(key);
             return (
-              <div key={key} className="flex items-start gap-3 bg-surface px-3 py-2.5">
+              <StaggerItem key={key} className="flex items-start gap-3 bg-surface px-3 py-2.5">
                 <button
                   type="button"
                   onClick={() => toggle(key, song.previewUrl)}
@@ -103,7 +111,7 @@ export function AiSongRecommendations({ playlistId }: { playlistId: string }) {
                   type="button"
                   onClick={() => handleAdd(song)}
                   disabled={isPending || isAdded}
-                  className="mt-0.5 flex shrink-0 items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-50"
+                  className="mt-0.5 flex shrink-0 items-center gap-1 rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground transition hover:bg-accent-hover active:scale-95 disabled:opacity-50"
                 >
                   {isAdded ? (
                     "Added"
@@ -114,10 +122,10 @@ export function AiSongRecommendations({ playlistId }: { playlistId: string }) {
                     </>
                   )}
                 </button>
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerGrid>
       )}
     </div>
   );

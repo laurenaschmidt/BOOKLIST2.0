@@ -6,6 +6,7 @@ import { getBookWithUserContext } from "@/lib/data/books";
 import { BookCover } from "@/components/book-cover";
 import { AddToLibraryMenu } from "@/components/add-to-library-menu";
 import { PlaylistCard } from "@/components/playlist-card";
+import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
 
 export default async function BookDetailPage({
   params,
@@ -60,14 +61,14 @@ export default async function BookDetailPage({
           <div className="flex items-center gap-2">
             <Link
               href={`/books/${book.id}/playlists/new`}
-              className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-surface-hover"
+              className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-hover active:scale-95"
             >
               <Plus className="h-4 w-4" />
               Create manually
             </Link>
             <Link
               href={`/books/${book.id}/playlists/generate`}
-              className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover"
+              className="flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:bg-accent-hover active:scale-95"
             >
               <Sparkles className="h-4 w-4" />
               Generate with AI
@@ -80,18 +81,19 @@ export default async function BookDetailPage({
             No playlists yet for this book. Create one to capture its mood.
           </p>
         ) : (
-          <div className="mt-6 grid grid-cols-1 gap-5 animate-in fade-in-0 slide-in-from-bottom-2 duration-500 sm:grid-cols-2 lg:grid-cols-3">
+          <StaggerGrid className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {playlists.map((playlist) => (
-              <PlaylistCard
-                key={playlist.id}
-                id={playlist.id}
-                title={playlist.title}
-                description={playlist.description}
-                songCount={playlist.songs.length}
-                lyricsType={playlist.lyricsType}
-              />
+              <StaggerItem key={playlist.id}>
+                <PlaylistCard
+                  id={playlist.id}
+                  title={playlist.title}
+                  description={playlist.description}
+                  songCount={playlist.songs.length}
+                  lyricsType={playlist.lyricsType}
+                />
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGrid>
         )}
       </div>
     </div>

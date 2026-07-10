@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { PersonCard, type Person } from "@/components/person-card";
+import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
 import type { FriendshipStatus } from "@/lib/data/friends";
 
 export function PeopleDirectory({
@@ -45,11 +46,13 @@ export function PeopleDirectory({
       {filteredFriends.length > 0 && (
         <div className="mt-8">
           <h2 className="font-display text-xl font-semibold text-ink">Friends</h2>
-          <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <StaggerGrid className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {filteredFriends.map((person) => (
-              <PersonCard key={person.id} person={person} status={statusFor(person.id)} />
+              <StaggerItem key={person.id}>
+                <PersonCard person={person} status={statusFor(person.id)} />
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGrid>
         </div>
       )}
 
@@ -61,11 +64,13 @@ export function PeopleDirectory({
           {filteredEveryoneElse.length === 0 ? (
             <p className="mt-4 text-ink-muted">That&apos;s everyone.</p>
           ) : (
-            <div className="mt-4 grid grid-cols-1 gap-5 animate-in fade-in-0 slide-in-from-bottom-2 duration-500 sm:grid-cols-2 lg:grid-cols-3">
+            <StaggerGrid className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {filteredEveryoneElse.map((person) => (
-                <PersonCard key={person.id} person={person} status={statusFor(person.id)} />
+                <StaggerItem key={person.id}>
+                  <PersonCard person={person} status={statusFor(person.id)} />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGrid>
           )}
         </div>
       )}

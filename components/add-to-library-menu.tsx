@@ -38,7 +38,7 @@ export function AddToLibraryMenu({
         <button
           disabled={isPending}
           className={cn(
-            "flex w-full items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:opacity-60",
+            "flex w-full items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition active:scale-95 disabled:opacity-60",
             status
               ? "bg-sage/20 text-sage"
               : "bg-accent text-accent-foreground hover:bg-accent-hover"

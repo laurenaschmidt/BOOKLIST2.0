@@ -2,6 +2,7 @@
 
 import * as Tabs from "@radix-ui/react-tabs";
 import { PublicLibraryBookCard } from "@/components/public-library-book-card";
+import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
 import type { ReadingStatus } from "@/app/generated/prisma/enums";
 
 export type LibraryEntry = {
@@ -39,11 +40,13 @@ export function PublicLibraryTabs({ entries }: { entries: Record<ReadingStatus, 
           {entries[tab.value].length === 0 ? (
             <p className="text-ink-muted">Nothing on this shelf yet.</p>
           ) : (
-            <div className="grid grid-cols-2 gap-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-500 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <StaggerGrid className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {entries[tab.value].map((entry) => (
-                <PublicLibraryBookCard key={entry.bookId} {...entry} />
+                <StaggerItem key={entry.bookId}>
+                  <PublicLibraryBookCard {...entry} />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGrid>
           )}
         </Tabs.Content>
       ))}

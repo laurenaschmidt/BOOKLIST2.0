@@ -29,11 +29,14 @@ export function Navbar({ user }: { user: NavUser | null }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-canvas/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link
-          href="/"
-          className="font-display text-xl font-semibold tracking-tight text-ink"
-        >
-          BookList
+        <Link href="/" className="font-display text-xl font-semibold tracking-tight text-ink">
+          <motion.span
+            className="inline-block"
+            whileHover={{ rotate: [-2, 3, -2, 0], scale: 1.04 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            BookList
+          </motion.span>
         </Link>
 
         {user && (

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   addSongAction,
@@ -102,7 +103,7 @@ export function PlaylistManager({
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-foreground hover:bg-accent-hover disabled:opacity-60"
+                className="rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-hover active:scale-95 disabled:opacity-60"
               >
                 Save
               </button>
@@ -149,16 +150,26 @@ export function PlaylistManager({
         {songs.length === 0 ? (
           <p className="text-ink-muted">No songs yet. Add the first track below.</p>
         ) : (
-          songs.map((song, index) => (
-            <SongRow
-              key={song.id}
-              song={song}
-              index={index}
-              isPlaying={playingId === song.id}
-              onTogglePreview={() => toggle(song.id, song.previewUrl)}
-              onRemove={() => handleRemoveSong(song.id)}
-            />
-          ))
+          <AnimatePresence initial={false}>
+            {songs.map((song, index) => (
+              <motion.div
+                key={song.id}
+                layout
+                initial={{ opacity: 0, y: -10, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+                transition={{ type: "spring", stiffness: 400, damping: 32 }}
+              >
+                <SongRow
+                  song={song}
+                  index={index}
+                  isPlaying={playingId === song.id}
+                  onTogglePreview={() => toggle(song.id, song.previewUrl)}
+                  onRemove={() => handleRemoveSong(song.id)}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
 
@@ -199,7 +210,7 @@ export function PlaylistManager({
             <button
               type="submit"
               disabled={isPending}
-              className="flex items-center justify-center gap-1.5 self-start rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:bg-accent-hover disabled:opacity-60"
+              className="flex items-center justify-center gap-1.5 self-start rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:bg-accent-hover active:scale-95 disabled:opacity-60"
             >
               <Plus className="h-4 w-4" />
               Add song
