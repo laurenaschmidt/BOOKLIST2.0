@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getPublicProfile } from "@/lib/data/people";
-import { getFriends, getFriendshipStatus } from "@/lib/data/friends";
+import { isFollowing, getFollowers, getFollowing } from "@/lib/data/follows";
 import { UserAvatar } from "@/components/user-avatar";
-import { FriendButton } from "@/components/friend-button";
-import { FriendsList } from "@/components/friends-list";
+import { FollowButton } from "@/components/follow-button";
+import { PersonPillList } from "@/components/person-pill-list";
 import { PlaylistPreviewCard } from "@/components/playlists/playlist-preview-card";
 import { PublicLibraryTabs, type LibraryEntry } from "@/components/public-library-tabs";
 import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
@@ -32,9 +32,11 @@ export default async function PublicProfilePage({
   if (!profile) notFound();
 
   const { user, playlists, library } = profile;
-  const [friendshipStatus, friends] = await Promise.all([
-    getFriendshipStatus(currentUserId, userId),
-    getFriends(userId),
+  const [followingThem, followsMe, followers, followingList] = await Promise.all([
+    isFollowing(currentUserId, userId),
+    isFollowing(userId, currentUserId),
+    getFollowers(userId),
+    getFollowing(userId),
   ]);
 
   const libraryEntries: Record<ReadingStatus, LibraryEntry[]> = {
@@ -55,7 +57,9 @@ export default async function PublicProfilePage({
             </p>
           </div>
         </div>
-        <FriendButton otherUserId={user.id} initialStatus={friendshipStatus} />
+        {currentUserId !== user.id && (
+          <FollowButton otherUserId={user.id} initialFollowing={followingThem} followsYou={followsMe} />
+        )}
       </div>
 
       {user.bio && <p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">{user.bio}</p>}
@@ -88,11 +92,19 @@ export default async function PublicProfilePage({
         )}
       </div>
 
-      <div className="mt-10">
-        <h2 className="font-display text-xl font-semibold text-ink">
-          Friends {friends.length > 0 && `(${friends.length})`}
-        </h2>
-        <FriendsList friends={friends} emptyMessage={`${user.name} hasn't added any friends yet.`} />
+      <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2">
+        <div>
+          <h2 className="font-display text-xl font-semibold text-ink">
+            Following {followingList.length > 0 && `(${followingList.length})`}
+          </h2>
+          <PersonPillList people={followingList} emptyMessage={`${user.name} isn't following anyone yet.`} />
+        </div>
+        <div>
+          <h2 className="font-display text-xl font-semibold text-ink">
+            Followers {followers.length > 0 && `(${followers.length})`}
+          </h2>
+          <PersonPillList people={followers} emptyMessage={`${user.name} doesn't have any followers yet.`} />
+        </div>
       </div>
     </div>
   );

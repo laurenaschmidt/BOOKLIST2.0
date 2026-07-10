@@ -13,11 +13,6 @@ enum ReadingStatus {
   FINISHED
 }
 
-enum FriendRequestStatus {
-  PENDING
-  ACCEPTED
-}
-
 enum LyricsType {
   INSTRUMENTAL
   LYRICAL
@@ -36,20 +31,19 @@ model User {
   books     UserBook[]
   playlists Playlist[]
 
-  sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
-  receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
+  following Follow[] @relation("Following")
+  followers Follow[] @relation("Followers")
 }
 
-model FriendRequest {
-  id         String              @id @default(cuid())
-  senderId   String
-  sender     User                @relation("SentFriendRequests", fields: [senderId], references: [id], onDelete: Cascade)
-  receiverId String
-  receiver   User                @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
-  status     FriendRequestStatus @default(PENDING)
-  createdAt  DateTime            @default(now())
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  followed    User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 
-  @@unique([senderId, receiverId])
+  @@unique([followerId, followingId])
 }
 
 model Book {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { UserAvatar } from "@/components/user-avatar";
-import { FriendButton } from "@/components/friend-button";
-import type { FriendshipStatus } from "@/lib/data/friends";
+import { FollowButton } from "@/components/follow-button";
+import type { FollowStatus } from "@/lib/data/follows";
 
 export type Person = {
   id: string;
@@ -11,7 +11,7 @@ export type Person = {
   _count: { playlists: number };
 };
 
-export function PersonCard({ person, status }: { person: Person; status: FriendshipStatus }) {
+export function PersonCard({ person, status }: { person: Person; status: FollowStatus }) {
   return (
     <div className="group flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
       <Link href={`/people/${person.id}`} className="flex items-start gap-4">
@@ -26,7 +26,7 @@ export function PersonCard({ person, status }: { person: Person; status: Friends
           {person.bio && <p className="mt-2 line-clamp-2 text-sm text-ink-muted">{person.bio}</p>}
         </div>
       </Link>
-      <FriendButton otherUserId={person.id} initialStatus={status} />
+      <FollowButton otherUserId={person.id} initialFollowing={status.following} followsYou={status.followsYou} />
     </div>
   );
 }

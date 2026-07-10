@@ -4,29 +4,29 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { PersonCard, type Person } from "@/components/person-card";
 import { StaggerGrid, StaggerItem } from "@/components/motion/stagger-grid";
-import type { FriendshipStatus } from "@/lib/data/friends";
+import type { FollowStatus } from "@/lib/data/follows";
 
 export function PeopleDirectory({
-  friends,
+  following,
   everyoneElse,
   statuses,
 }: {
-  friends: Person[];
+  following: Person[];
   everyoneElse: Person[];
-  statuses: Record<string, FriendshipStatus>;
+  statuses: Record<string, FollowStatus>;
 }) {
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
   const isSearching = q.length > 0;
 
-  const filteredFriends = isSearching ? friends.filter((p) => p.name.toLowerCase().includes(q)) : friends;
+  const filteredFollowing = isSearching ? following.filter((p) => p.name.toLowerCase().includes(q)) : following;
   const filteredEveryoneElse = isSearching
     ? everyoneElse.filter((p) => p.name.toLowerCase().includes(q))
     : everyoneElse;
-  const noResults = isSearching && filteredFriends.length === 0 && filteredEveryoneElse.length === 0;
+  const noResults = isSearching && filteredFollowing.length === 0 && filteredEveryoneElse.length === 0;
 
-  function statusFor(personId: string): FriendshipStatus {
-    return statuses[personId] ?? { type: "none" };
+  function statusFor(personId: string): FollowStatus {
+    return statuses[personId] ?? { following: false, followsYou: false };
   }
 
   return (
@@ -43,11 +43,11 @@ export function PeopleDirectory({
 
       {noResults && <p className="mt-6 text-ink-muted">No one matches &quot;{query}&quot;.</p>}
 
-      {filteredFriends.length > 0 && (
+      {filteredFollowing.length > 0 && (
         <div className="mt-8">
-          <h2 className="font-display text-xl font-semibold text-ink">Friends</h2>
+          <h2 className="font-display text-xl font-semibold text-ink">Following</h2>
           <StaggerGrid className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredFriends.map((person) => (
+            {filteredFollowing.map((person) => (
               <StaggerItem key={person.id}>
                 <PersonCard person={person} status={statusFor(person.id)} />
               </StaggerItem>
@@ -56,9 +56,9 @@ export function PeopleDirectory({
         </div>
       )}
 
-      {!noResults && (filteredEveryoneElse.length > 0 || (!isSearching && friends.length > 0)) && (
+      {!noResults && (filteredEveryoneElse.length > 0 || (!isSearching && following.length > 0)) && (
         <div className="mt-10">
-          {filteredFriends.length > 0 && (
+          {filteredFollowing.length > 0 && (
             <h2 className="font-display text-xl font-semibold text-ink">Everyone else</h2>
           )}
           {filteredEveryoneElse.length === 0 ? (

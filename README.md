@@ -82,14 +82,15 @@ Track what you're reading and build a mood playlist for every book. Part reading
   the UI. `lib/actions/ai-playlist.ts` has the corresponding Server Actions.
 - `lib/data/people.ts` — read-side data for the People directory and public
   profile/playlist views.
-- `lib/data/friends.ts` / `lib/actions/friends.ts` — mutual friend requests
-  (send, accept, decline/unfriend) backed by the `FriendRequest` model.
+- `lib/data/follows.ts` / `lib/actions/follows.ts` — one-way following (follow/
+  unfollow, no request or approval step) backed by the `Follow` model.
 - `components/` — UI components; anything interactive is a Client Component
   (`"use client"`), pages themselves stay server-rendered where possible.
-- `prisma/schema.prisma` — data model: `User`, `Book` (cached from Google Books
-  on first search/add), `UserBook` (a book's shelf status per user), `Playlist`
-  (optionally labeled `Instrumental` / `Has Lyrics` / `Mixed` via `lyricsType`), `Song`
-  (optional `reason` field, set when a song came from an AI suggestion).
+- `prisma/schema.prisma` — data model: `User`, `Follow` (one-way, no approval
+  step), `Book` (cached from Google Books on first search/add), `UserBook`
+  (a book's shelf status per user), `Playlist` (optionally labeled
+  `Instrumental` / `Has Lyrics` / `Mixed` via `lyricsType`), `Song` (optional
+  `reason` field, set when a song came from an AI suggestion).
 - `proxy.ts` — Next.js 16's replacement for `middleware.ts`; protects all routes
   except the landing page, login, and signup.
 
@@ -98,13 +99,18 @@ Track what you're reading and build a mood playlist for every book. Part reading
 - Every account is publicly visible to other logged-in users via the "People"
   directory (`/people`) — there's no private/public toggle yet. A person's
   public page (`/people/[userId]`) shows their bio, library shelves,
-  playlists (not reading stats), and friends list; both the library and
-  playlist views there are read-only. Your own friends list is also shown
-  on `/profile`.
-- Friending is a mutual request/accept relationship (like Goodreads, not a
-  one-way follow) and is purely a social layer — it doesn't change what's
-  visible, since profiles are already public to everyone. `/people` shows
-  incoming requests, your friends, and everyone else in separate sections.
+  playlists (not reading stats), and their followers/following lists; both
+  the library and playlist views there are read-only. Your own
+  followers/following lists are also shown on `/profile`.
+- Following is one-way and instant, like Twitter/Instagram rather than
+  Goodreads-style mutual friends — no request or approval step. It's purely
+  a social/discovery layer and doesn't change what's visible, since profiles
+  are already public to everyone. `/people` shows who you follow and
+  everyone else in separate sections, with a "Follows you" badge when
+  someone follows you back. This replaced an earlier mutual friend-request
+  system (`FriendRequest` model); the migration converts any existing
+  accepted friendship into a mutual follow and any pending request into a
+  one-way follow from whoever sent it.
 - Book covers are proxied through `next/image`; `next.config.ts` allow-lists
   `books.google.com` as a remote image source.
 - Profile pictures are stored on the local filesystem under `public/uploads/`

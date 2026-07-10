@@ -2,10 +2,10 @@ import { BookOpen, BookMarked, CheckCircle2, Library } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { computeReadingStats } from "@/lib/data/stats";
-import { getFriends } from "@/lib/data/friends";
+import { getFollowers, getFollowing } from "@/lib/data/follows";
 import { AvatarUploader } from "@/components/profile/avatar-uploader";
 import { BioEditor } from "@/components/profile/bio-editor";
-import { FriendsList } from "@/components/friends-list";
+import { PersonPillList } from "@/components/person-pill-list";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -16,7 +16,7 @@ export default async function ProfilePage() {
     select: { name: true, email: true, image: true, bio: true, createdAt: true },
   });
   const stats = await computeReadingStats(userId);
-  const friends = await getFriends(userId);
+  const [followers, following] = await Promise.all([getFollowers(userId), getFollowing(userId)]);
 
   const statCards = [
     { label: "Currently reading", value: stats.currentlyReading, icon: BookOpen },
@@ -71,14 +71,22 @@ export default async function ProfilePage() {
         </p>
       )}
 
-      <div className="mt-10">
-        <h2 className="font-display text-xl font-semibold text-ink">
-          Friends {friends.length > 0 && `(${friends.length})`}
-        </h2>
-        <FriendsList
-          friends={friends}
-          emptyMessage="You haven't added any friends yet. Visit the People page to find some."
-        />
+      <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2">
+        <div>
+          <h2 className="font-display text-xl font-semibold text-ink">
+            Following {following.length > 0 && `(${following.length})`}
+          </h2>
+          <PersonPillList
+            people={following}
+            emptyMessage="You are not following anyone yet. Visit the People page to find some."
+          />
+        </div>
+        <div>
+          <h2 className="font-display text-xl font-semibold text-ink">
+            Followers {followers.length > 0 && `(${followers.length})`}
+          </h2>
+          <PersonPillList people={followers} emptyMessage="No one is following you yet." />
+        </div>
       </div>
     </div>
   );
