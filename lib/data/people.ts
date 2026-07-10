@@ -18,7 +18,7 @@ export async function getOtherUsers(currentUserId: string) {
 export async function getPublicProfile(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, name: true, image: true, bio: true },
+    select: { id: true, name: true, image: true, bio: true, favoriteArtists: true },
   });
   if (!user) return null;
 

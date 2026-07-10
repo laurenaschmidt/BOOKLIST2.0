@@ -5,6 +5,7 @@ import { computeReadingStats } from "@/lib/data/stats";
 import { getFollowers, getFollowing } from "@/lib/data/follows";
 import { AvatarUploader } from "@/components/profile/avatar-uploader";
 import { BioEditor } from "@/components/profile/bio-editor";
+import { FavoriteArtistsEditor } from "@/components/profile/favorite-artists-editor";
 import { PersonPillList } from "@/components/person-pill-list";
 
 export default async function ProfilePage() {
@@ -13,7 +14,7 @@ export default async function ProfilePage() {
 
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
-    select: { name: true, email: true, image: true, bio: true, createdAt: true },
+    select: { name: true, email: true, image: true, bio: true, favoriteArtists: true, createdAt: true },
   });
   const stats = await computeReadingStats(userId);
   const [followers, following] = await Promise.all([getFollowers(userId), getFollowing(userId)]);
@@ -63,6 +64,13 @@ export default async function ProfilePage() {
           </div>
         </div>
       )}
+
+      <div className="mt-10">
+        <h2 className="font-display text-xl font-semibold text-ink">Favorite artists</h2>
+        <div className="mt-4">
+          <FavoriteArtistsEditor artists={user.favoriteArtists} />
+        </div>
+      </div>
 
       {stats.finishedThisYear > 0 && (
         <p className="mt-10 text-sm text-ink-muted">

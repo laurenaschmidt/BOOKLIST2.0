@@ -25,13 +25,14 @@ enum NotificationType {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  image        String?
-  bio          String?
-  createdAt    DateTime @default(now())
+  id              String   @id @default(cuid())
+  name            String
+  email           String   @unique
+  passwordHash    String
+  image           String?
+  bio             String?
+  favoriteArtists String[] @default([])
+  createdAt       DateTime @default(now())
 
   books     UserBook[]
   playlists Playlist[]

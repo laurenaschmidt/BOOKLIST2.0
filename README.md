@@ -102,10 +102,13 @@ Track what you're reading and build a mood playlist for every book. Part reading
 
 - Every account is publicly visible to other logged-in users via the "People"
   directory (`/people`) — there's no private/public toggle yet. A person's
-  public page (`/people/[userId]`) shows their bio, library shelves,
-  playlists (not reading stats), and their followers/following lists; both
-  the library and playlist views there are read-only. Your own
-  followers/following lists are also shown on `/profile`.
+  public page (`/people/[userId]`) shows their bio, favorite artists (if
+  any are set), library shelves, playlists (not reading stats), and their
+  followers/following lists; both the library and playlist views there are
+  read-only. Favorite artists are a plain free-text list (`User.favoriteArtists`,
+  up to 15) editable only on your own `/profile` — there's no artist API tying
+  them to real data, they're just self-reported tags shown on your profile.
+  Your own followers/following lists are also shown on `/profile`.
 - Following is one-way and instant, like Twitter/Instagram rather than
   Goodreads-style mutual friends — no request or approval step. It's purely
   a social/discovery layer and doesn't change what's visible, since profiles

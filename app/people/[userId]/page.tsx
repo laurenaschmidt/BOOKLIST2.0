@@ -64,6 +64,19 @@ export default async function PublicProfilePage({
 
       {user.bio && <p className="mt-6 max-w-xl text-sm leading-relaxed text-ink-muted">{user.bio}</p>}
 
+      {user.favoriteArtists.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-xs font-medium uppercase tracking-wide text-dusty">Favorite artists</h2>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {user.favoriteArtists.map((artist) => (
+              <span key={artist} className="rounded-full bg-dusty/15 px-3 py-1.5 text-sm font-medium text-dusty">
+                {artist}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mt-10">
         <h2 className="font-display text-xl font-semibold text-ink">Library</h2>
         <PublicLibraryTabs entries={libraryEntries} />
