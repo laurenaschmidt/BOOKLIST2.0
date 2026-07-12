@@ -68,8 +68,12 @@ export async function signupAction(
   }
 }
 
+// redirect: false — a soft client-side transition leaves prefetch requests
+// from the previous page in flight, and their responses can re-issue a
+// valid session cookie moments after this one clears it. A hard navigation
+// (done by the caller) actually aborts those in-flight requests.
 export async function logoutAction() {
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirect: false });
 }
 
 // No rate limiting exists in this app yet — this endpoint is unthrottled.

@@ -107,8 +107,9 @@ export function Navbar({ user, unreadNotificationCount = 0 }: { user: NavUser | 
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator className="my-1 h-px bg-border" />
                 <DropdownMenu.Item
-                  onSelect={() => {
-                    logoutAction();
+                  onSelect={async () => {
+                    await logoutAction();
+                    window.location.href = "/";
                   }}
                   className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none transition-colors hover:bg-surface-hover focus:bg-surface-hover"
                 >
