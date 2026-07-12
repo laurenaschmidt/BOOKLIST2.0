@@ -106,16 +106,14 @@ export function Navbar({ user, unreadNotificationCount = 0 }: { user: NavUser | 
                   </Link>
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator className="my-1 h-px bg-border" />
-                <DropdownMenu.Item asChild>
-                  <form action={logoutAction}>
-                    <button
-                      type="submit"
-                      className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink outline-none transition-colors hover:bg-surface-hover focus:bg-surface-hover"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Log out
-                    </button>
-                  </form>
+                <DropdownMenu.Item
+                  onSelect={() => {
+                    logoutAction();
+                  }}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none transition-colors hover:bg-surface-hover focus:bg-surface-hover"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Log out
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
