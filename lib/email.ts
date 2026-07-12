@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const FROM = "BookList <onboarding@resend.dev>";
 
 export class EmailError extends Error {
@@ -18,6 +16,11 @@ export async function sendPasswordResetEmail({
   to: string;
   resetUrl: string;
 }): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    throw new EmailError("RESEND_API_KEY is not configured.");
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const { error } = await resend.emails.send({
     from: FROM,
     to,
