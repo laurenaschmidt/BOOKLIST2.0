@@ -44,6 +44,11 @@ Track what you're reading and build a mood playlist for every book. Part reading
      free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
      (no credit card needed). Without it, those two features show an error but
      manual playlist creation is unaffected.
+   - `RESEND_API_KEY` — required for "forgot password" reset emails. Get a
+     free key at [resend.com/api-keys](https://resend.com/api-keys). Without a
+     verified sending domain, Resend's sandbox sender can only deliver to the
+     email address that owns the Resend account — fine for testing, not for
+     real users until a domain is verified.
 
 4. **Run migrations and seed demo data**
 
@@ -101,10 +106,17 @@ Track what you're reading and build a mood playlist for every book. Part reading
   `Instrumental` / `Has Lyrics` / `Mixed` via `lyricsType`), `Song` (optional
   `reason` field, set when a song came from an AI suggestion).
 - `proxy.ts` — Next.js 16's replacement for `middleware.ts`; protects all routes
-  except the landing page, login, and signup.
+  except the landing page, login, signup, and the forgot/reset-password pages.
 
 ## Notes
 
+- Forgot/reset password (`/forgot-password`, `/reset-password/[token]`) sends a
+  one-hour, single-use link via Resend (`lib/email.ts`). The request action
+  always returns the same generic message regardless of whether the email is
+  registered, so it can't be used to enumerate accounts. Tokens are stored
+  hashed (`PasswordResetToken.tokenHash`), never in plaintext. There's no rate
+  limiting on requesting a reset — acceptable at this app's scale, but worth
+  revisiting if abuse becomes a concern.
 - Every account is publicly visible to other logged-in users via the "People"
   directory (`/people`) — there's no private/public toggle yet. A person's
   public page (`/people/[userId]`) shows their bio, favorite artists (if

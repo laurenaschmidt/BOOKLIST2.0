@@ -1,13 +1,20 @@
 import { auth } from "@/lib/auth";
 
-const PUBLIC_PATHS = ["/", "/login", "/signup"];
+const PUBLIC_PATHS = ["/", "/login", "/signup", "/forgot-password"];
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
 
+  const isAuthPage =
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname.startsWith("/reset-password/");
+
   const isPublicPath =
     PUBLIC_PATHS.includes(pathname) ||
+    pathname.startsWith("/reset-password/") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/register");
 
@@ -17,7 +24,7 @@ export default auth((req) => {
     return Response.redirect(loginUrl);
   }
 
-  if (isLoggedIn && (pathname === "/login" || pathname === "/signup")) {
+  if (isLoggedIn && isAuthPage) {
     return Response.redirect(new URL("/library", req.nextUrl.origin));
   }
 });
