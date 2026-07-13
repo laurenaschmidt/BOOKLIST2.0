@@ -4,7 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion } from "framer-motion";
-import { Bell, LogOut, User as UserIcon } from "lucide-react";
+import {
+  Bell,
+  LogOut,
+  User as UserIcon,
+  Menu,
+  Library,
+  Search as SearchIcon,
+  ListMusic,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/actions/auth";
 import { UserAvatar } from "@/components/user-avatar";
@@ -17,10 +26,10 @@ type NavUser = {
 };
 
 const links = [
-  { href: "/library", label: "Library" },
-  { href: "/search", label: "Search" },
-  { href: "/playlists", label: "Playlists" },
-  { href: "/people", label: "People" },
+  { href: "/library", label: "Library", icon: Library },
+  { href: "/search", label: "Search", icon: SearchIcon },
+  { href: "/playlists", label: "Playlists", icon: ListMusic },
+  { href: "/people", label: "People", icon: Users },
 ];
 
 export function Navbar({ user, unreadNotificationCount = 0 }: { user: NavUser | null; unreadNotificationCount?: number }) {
@@ -65,6 +74,42 @@ export function Navbar({ user, unreadNotificationCount = 0 }: { user: NavUser | 
 
         {user ? (
           <div className="flex items-center gap-2">
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button
+                  aria-label="Menu"
+                  className="rounded-full p-2 text-ink-muted transition-colors hover:text-ink sm:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content
+                  align="start"
+                  sideOffset={10}
+                  className="z-50 min-w-48 rounded-xl border border-border bg-surface p-1.5 text-ink shadow-lg shadow-black/5 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+                >
+                  {links.map((link) => {
+                    const isActive = pathname.startsWith(link.href);
+                    return (
+                      <DropdownMenu.Item key={link.href} asChild>
+                        <Link
+                          href={link.href}
+                          className={cn(
+                            "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none transition-colors",
+                            "hover:bg-surface-hover focus:bg-surface-hover",
+                            isActive ? "text-accent" : "text-ink"
+                          )}
+                        >
+                          <link.icon className="h-4 w-4" />
+                          {link.label}
+                        </Link>
+                      </DropdownMenu.Item>
+                    );
+                  })}
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
             <Link
               href="/notifications"
               aria-label="Notifications"
