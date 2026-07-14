@@ -56,7 +56,7 @@ export function BioEditor({ bio }: { bio: string | null }) {
       <button
         onClick={() => setIsEditing(true)}
         aria-label="Edit bio"
-        className="shrink-0 rounded-full p-1 text-ink-muted opacity-0 transition-opacity hover:text-accent group-hover:opacity-100"
+        className="shrink-0 rounded-full p-1 text-ink-muted opacity-100 transition-opacity hover:text-accent sm:opacity-0 sm:group-hover:opacity-100"
       >
         <Pencil className="h-3.5 w-3.5" />
       </button>

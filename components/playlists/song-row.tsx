@@ -70,7 +70,7 @@ export function SongRow({
         <button
           onClick={onRemove}
           aria-label={`Remove ${song.title}`}
-          className="shrink-0 rounded-full p-1.5 text-ink-muted opacity-0 transition-opacity hover:text-accent group-hover:opacity-100"
+          className="shrink-0 rounded-full p-1.5 text-ink-muted opacity-100 transition-opacity hover:text-accent sm:opacity-0 sm:group-hover:opacity-100"
         >
           <X className="h-4 w-4" />
         </button>

@@ -124,7 +124,7 @@ export function FavoriteArtistsEditor({ artists }: { artists: string[] }) {
       <button
         onClick={() => setIsEditing(true)}
         aria-label="Edit favorite artists"
-        className="shrink-0 rounded-full p-1 text-ink-muted opacity-0 transition-opacity hover:text-accent group-hover:opacity-100"
+        className="shrink-0 rounded-full p-1 text-ink-muted opacity-100 transition-opacity hover:text-accent sm:opacity-0 sm:group-hover:opacity-100"
       >
         <Pencil className="h-3.5 w-3.5" />
       </button>
